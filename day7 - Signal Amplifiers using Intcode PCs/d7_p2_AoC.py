@@ -10,12 +10,17 @@ class Computer:
 
     def set_input(self, items:list):
         self.inp_stack = items
+
+    def get_instr(self):
+        """ Get instruction pointed at by self.i """
+        return self.tape[self.i]
         
     def compute(self):
         """ Iterates over self.tape, executing instructions until a HALT op is encountered, 
             or data is returned (op 4) which pauses execution of the computer
         """
         def get_params(a,b,c=None):
+            """ Parameter modes are handleded in here """
             p1,p2,p3 = self.tape[self.i+1], self.tape[self.i+2], c
             if a == 0: p1 = self.tape[p1]
             if b == 0: p2 = self.tape[p2]   
@@ -26,19 +31,19 @@ class Computer:
 
         while self.i < len(self.tape):
             # Process op code
-            fop = str(self.tape[self.i]) 
-            op = fop[len(fop)-2:]
-            fop = fop[:len(fop)-2]
+            instr  = str(self.get_instr())
+            op     = instr[len(instr)-2:]
+            pmodes = instr[:len(instr)-2]
 
             a,b,c = 0,0,0
-            if len(fop) > 0:
-                fop = list(fop)
-                reversed(fop)
+            if len(pmodes) > 0:
+                pmodes = list(pmodes)
+                reversed(pmodes)
 
-                if len(fop) > 0: a = int(fop.pop())
-                if len(fop) > 0: b = int(fop.pop())
-                if len(fop) > 0: c = int(fop.pop())
-                # Done wit op code 
+                # Get paramater modes:
+                if len(pmodes) > 0: a = int(pmodes.pop())
+                if len(pmodes) > 0: b = int(pmodes.pop())
+                if len(pmodes) > 0: c = int(pmodes.pop())
 
             if op == '99': 
                 self.enabled = False
@@ -96,7 +101,6 @@ class Computer:
 
         return output
 
-from time import sleep 
 from itertools import permutations
 
 def compute_signal(amps, phase_codes):
