@@ -1,12 +1,16 @@
 
 class Computer:
-    def __init__(self, tape, name=None, inp_stack=None):
+    def __init__(self, tape, name=None, inp_stack=None, output_mode=None):
         self.name = name
         self.enabled = True         
         self.tape = tape            # Stores this comptuers program
         self.inp_stack = inp_stack  # Op code 3 gets input from here 
         self.i = 0                  # Instruction pointer
         self.rel_base = 0
+
+        self.output_mode = output_mode # By default, output is printed to stdout
+                                       # if mode='return', execution in method compute()
+                                       # pauses and the output is returned to the calling thread
 
         self.last_computed_value = 0
 
@@ -53,16 +57,72 @@ class Computer:
             if c == None:               return p1, p2
             if c != None:               return p1, p2, p3
 
-        output = None
+        def _op_99():
+            self.enabled = False
+            self.i == len(self.tape)
+            return 'HALT'
+
+        def _op_01(): # Add p1 + p2
+            p1, p2, p3 = get_indexes(m1,m2,m3)        
+            self.tape[p3] = self.tape[p1] + self.tape[p2]        
+            self.i += 4
+
+        def _op_02(): # Multiple p1 * p2
+            p1, p2, p3 = get_indexes(m1,m2,m3)        
+            self.tape[p3] = self.tape[p1] * self.tape[p2]
+            self.i += 4
+
+        def _op_03():  # Get input
+            #user_in = input(">>> type a number: ")
+            user_in = self.inp_stack.pop(0)
+            p1 = get_indexes(m1)                
+            self.tape[p1] = int(user_in)
+            self.i += 2
+
+        def _op_04():  # Return output
+            output = self.tape[get_indexes(m1)]                 
+            self.last_computed_value = output
+            
+            if self.output_mode=='return': return output
+            else:                          print(output)                    
+            self.i += 2
+
+        def _op_05():  # Jump to p2 if p1 is non-zero
+            p1,p2 = get_indexes(m1,m2)      
+            if self.tape[p1] > 0: self.i = self.tape[p2]
+            else: self.i += 3
+
+        def _op_06(): # Jump to p2 if p1 is zero
+            p1,p2 = get_indexes(m1,m2)       
+            if self.tape[p1] == 0: self.i = self.tape[p2]    
+            else: self.i += 3
+
+        def _op_07(): # Stores 1 in p3 if p1 < p2 else stores 0
+            p1,p2,p3 = get_indexes(m1,m2, m3)        
+            if self.tape[p1] < self.tape[p2]: self.tape[p3] = 1
+            else:                             self.tape[p3] = 0
+            self.i += 4
+
+        def _op_08():  # Stores 1 if p1 == p2 else stores 1 
+            p1,p2,p3 = get_indexes(m1,m2,m3)                
+            if self.tape[p1] == self.tape[p2]: self.tape[p3] = 1
+            else:                              self.tape[p3] = 0
+            self.i += 4
+
+        def _op_09(): # Change the relative boost value:
+            p1 = get_indexes(m1)
+            self.rel_base += self.tape[p1]
+            self.i += 2
+
+        # Tie each op to its' associated function:
+        ops = { '99':_op_99, '01':_op_01, '02':_op_02, '03':_op_03, '04':_op_04,
+                '05':_op_05, '06':_op_06, '07':_op_07, '08':_op_08, '09':_op_09}
 
         while self.i < len(self.tape):                
             # Process op code
             instr  = str(self.get_instr())
             op     = instr[len(instr)-2:]
             pmodes = instr[:len(instr)-2]
-
-            if instr == '203' or instr == '209': 
-                foo = 0; foo += 1
 
             # Extract parameter modes from the instruction:
             m1,m2,m3 = 0,0,0
@@ -74,66 +134,16 @@ class Computer:
                 if len(pmodes) > 0: m2 = int(pmodes.pop())
                 if len(pmodes) > 0: m3 = int(pmodes.pop())
 
-            if op == '99': 
-                self.enabled = False
-                self.i == len(self.tape)
-                break
+            # Make sure op is in correct format:
+            if len(op) == 1: op = '0' + op 
 
-            elif op in '01': # Add p1 + p2
-                p1, p2, p3 = get_indexes(m1,m2,m3)        
-                self.tape[p3] = self.tape[p1] + self.tape[p2]        
-                self.i += 4
+            # Execute the op: 
+            result = ops[op]() 
+            if result != None: 
+                if result == 'HALT': break 
+                else: return result
 
-            elif op in '02': # Multiple p1 * p2
-                p1, p2, p3 = get_indexes(m1,m2,m3)        
-                self.tape[p3] = self.tape[p1] * self.tape[p2]
-                self.i += 4
-
-            elif op in '03': # Get input
-                #user_in = input(">>> type a number: ")
-                user_in = self.inp_stack.pop(0)
-                p1 = get_indexes(m1)                
-                self.tape[p1] = int(user_in)
-                self.i += 2
-
-            elif op in '04': # Return output
-                output = self.tape[get_indexes(m1)]                 
-                self.last_computed_value = output
-                #return output
-                print(output)
-                self.i += 2
-
-            elif op in '05': # Jump to p2 if p1 is non-zero
-                p1,p2 = get_indexes(m1,m2)      
-                if self.tape[p1] > 0: self.i = self.tape[p2]
-                else: self.i += 3
-
-            elif op in '06': # Jump to p2 if p1 is zero
-                p1,p2 = get_indexes(m1,m2)       
-                if self.tape[p1] == 0: self.i = self.tape[p2]    
-                else: self.i += 3
-
-            elif op in '07': # Stores 1 in p3 if p1 < p2 else stores 0
-                p1,p2,p3 = get_indexes(m1,m2, m3)        
-                if self.tape[p1] < self.tape[p2]: self.tape[p3] = 1
-                else:                             self.tape[p3] = 0
-                self.i += 4
-
-            elif op in '08': # Stores 1 if p1 == p2 else stores 1 
-                p1,p2,p3 = get_indexes(m1,m2,m3)                
-                if self.tape[p1] == self.tape[p2]: self.tape[p3] = 1
-                else:                              self.tape[p3] = 0
-                self.i += 4
-            
-            elif op in '09': # Change the relative boost value:
-                p1 = get_indexes(m1)
-                self.rel_base += self.tape[p1]
-                self.i += 2
-
-        return output
-
-def get_data(path):
-    return [ int(n.rstrip('\n')) for n in open(path).readline().split(',')]
+get_data = lambda path: [ int(n.rstrip('\n')) for n in open(path).readline().split(',')]
 
 #+----------------------------------------------------------------------------+
 #|                                  Tests                                     |
@@ -176,13 +186,11 @@ if False:
 #+----------------------------------------------------------------------------+
 
 data = get_data("d9_input.txt")
-boost_pc = Computer(tape=data, inp_stack=[1])
-boost_pc.compute()
+Computer(tape=data, inp_stack=[1]).compute()
 
 #+----------------------------------------------------------------------------+
 #|                                  Part 2                                    |
 #+----------------------------------------------------------------------------+
 
 data = get_data("d9_input.txt")
-boost_pc = Computer(tape=data, inp_stack=[2])
-boost_pc.compute()
+Computer(tape=data, inp_stack=[2]).compute()
