@@ -80,9 +80,10 @@ class Computer:
                 if   c == 0: p3 = get_(p3)
                 elif c == 2: p3 = self.rel_base + get_(p3)
 
-            if p1 and p2 and p3:    return p1, p2, p3
-            if p1 and p2:           return p1, p2
-            if p1:                  return p1
+            if p1 != None and p2 != None and p3 != None:    return p1, p2, p3
+            if p1 != None and p2 != None:                   return p1, p2
+            if p1 != None:                                  return p1
+
 
         def _op_99():
             self.enabled = False

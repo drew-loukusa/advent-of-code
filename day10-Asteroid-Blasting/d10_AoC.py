@@ -28,7 +28,7 @@ def reduce_ratio(x,y):
     if a: return int(x/a), int(y/a)
     else: return int(x),int(y)
 
-fpath = r"C:\Users\Drew\Desktop\Code Projects\advent_of_code_2019\day10"
+fpath = r"C:\Users\Drew\Desktop\Code Projects\advent_of_code_2019\day10-Asteroid-Blasting"
 
 #+----------------------------------------------------------------------------+
 #|                                  Part 1                                    |
@@ -179,6 +179,8 @@ def part_2(path, best_rock, visible_asteroids):
             # no more asteroids in that slope path to be found:
             if (x < 0 or x > max_x) or (y < 0 or y > max_y):
                 visible_asteroids[i] = None                
+                visible_asteroids.pop(i)
+                i -= 1
 
             vaporized_count += 1
             vaporized_order.append((vaporized_count, ast))
@@ -188,7 +190,6 @@ def part_2(path, best_rock, visible_asteroids):
         if visible_asteroids.count(None) == len(visible_asteroids): break
 
     return vaporized_count, vaporized_order
-
 
 if __name__ == "__main__": 
     path = fpath+"\\d10_p1_test1.txt"    
