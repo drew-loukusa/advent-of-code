@@ -36,32 +36,7 @@ for line in data:
 
     reactions[output_name] = { 'output_amount':output_amount, 'recipe': recipe }
     
-#for name, reaction in reactions.items():
-#   print(name, reaction)
-
 class FuelError(Exception): pass
-
-# def calc_needed_ore(mat_name, reactions, ore_count, excess_store):
-#     output_amount   = reactions[mat_name]['output_amount'] # How much output this recipe makes
-#     recipe          = reactions[mat_name]['recipe']        # Duh...
-
-   
-#     # Use recipe to create output:
-#     for ingredient_name, ingredient_amount in recipe.items():        
-        
-#         # Each ingredient has it's own recipe:
-#         # You may need to use an ingredients recipie 
-#         # multiple times to get enough of said ingredient:
-#         amount_made = 0
-#         excess_amount = excess_store[ingredient_name]
-        
-#         while amount_made + excess_amount < ingredient_amount:
-#             amount_made += calc_needed_ore(ingredient_name, reactions, ore_count, excess_store) 
-        
-#         # Store excess for later use:
-#         excess_store[ingredient_name] = (amount_made + excess_amount - ingredient_amount)
-        
-#     return output_amount
 
 def calc_needed_ore(mat_name, reactions, ore_count, matr_store):
 

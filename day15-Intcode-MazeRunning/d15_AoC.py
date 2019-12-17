@@ -213,13 +213,14 @@ class Path:
 
 class RepairBot:
     
-    def __init__(self, data, interval=0.1, visualize=False, wall_data=None, computer=None):
+    def __init__(self, data, interval=0.1, visualize=False, wall_data=None, computer=None, loc=None):
         self.computer = Computer(data, output_mode='return')
         if computer:
             self.computer = computer 
 
         self.loc = (22,22)
-        self.old_loc = (22,22)
+        if loc: self.loc = loc
+        self.old_loc = (self.loc[0], self.loc[1])
 
         self.walls = dict()
         self.visited = set()
@@ -244,14 +245,15 @@ class RepairBot:
         
         self.back_track_count = 0
 
-    def clone_bot(self):
+    def clone_bot(self, loc):
         clone_vm = self.computer.clone()
         bot = RepairBot(
                         data=[],
                         interval=self.interval, 
                         visualize=self.visualize,                        
                         wall_data=self.wall_data,
-                        computer=clone_vm
+                        computer=clone_vm,
+                        loc=loc,
                         )
         bot.walls     = self.walls
         bot.visited   = self.visited                                 
@@ -479,25 +481,29 @@ class RepairBot:
             self.computer.set_input([self.direction])
     
     def auto_run_inverted(self):        
-
+        """ Inverted version of auto_run: For everything swap turn left and turn right. """
         # 1. Move until we hit a wall
-        # 2. Turn left 90 degrees and try to move, repeat until succesful
-        # 3. Turn right ONCE, try to move 
+        # 2. Turn right 90 degrees and try to move, repeat until succesful
+        # 3. Turn Left ONCE, try to move 
         #       > If we were able to move, repeat step 3 until we hit a wall
         #       > If we were NOT able to move, go to step 2
         
         
-        movement_commands_given = 0
+        mv_cmds = 0
         # Step 1:
-        while self.move_bot(): 
-            movement_commands_given += 1
+        while no_wall := self.move_bot(): 
+            if not self.backtracking and no_wall: mv_cmds += 1
+            elif self.backtracking and no_wall: mv_cmds -= 1
 
         while self.computer.enabled and not self.found_oxygen:    
             # Step 2:
             while True:
                 self.turn_right()
                 no_wall = self.move_bot()
-                movement_commands_given += 1
+
+                if not self.backtracking and no_wall: mv_cmds += 1
+                elif self.backtracking and no_wall: mv_cmds -= 1
+
                 if no_wall: 
                    break 
     
@@ -505,21 +511,32 @@ class RepairBot:
             self.turn_left()
             no_wall = self.move_bot()
 
+            if not self.backtracking and no_wall: mv_cmds += 1
+            elif self.backtracking and no_wall: mv_cmds -= 1
+
+
             if no_wall:                
                 while True:
                     self.turn_left()
                     no_wall = self.move_bot()
-                    movement_commands_given += 1
+
+                    if not self.backtracking and no_wall: mv_cmds += 1
+                    elif self.backtracking and no_wall: mv_cmds -= 1
+
                     if not no_wall: 
                         break                    
 
             self.computer.set_input([self.direction])
         
-        return movement_commands_given
+        return mv_cmds
     
     def auto_map(self, prev_direction=None):       
-        """ Calling this method will tell the bot to auto run all paths of the maze
-            until it finds the oxygen system. """
+        """ Calling this method will tell the bot to traverse all paths of the maze
+            until it finds the oxygen system.
+            
+            Along the way it will record it's path in a Path node tree, and map out 
+            the location of all walls. 
+            """
 
         # 1. Check all 4 cardinal directions for walls by trying to move 
         #    foward, then back again if moving was succesful
@@ -538,7 +555,7 @@ class RepairBot:
             if orig_path_clear: 
                 self.turn_180(); self.move_bot(exploring=True)
 
-            paths = [] # Clones 
+            clones = [] # Clones 
             
             wall_count = 0
 
@@ -558,9 +575,8 @@ class RepairBot:
                         # no need to clone a bot to do it, and don't go backwards!
                         elif direction != orig_direction and direction != prev_direction: 
                             if self.loc not in self.visited:
-                                clone = self.clone_bot()
-                                clone.prev = self.prev
-                                paths.append(clone)
+                                clone = self.clone_bot(loc=self.loc)                                                                                          
+                                clones.append(clone)
 
                     # Turn around and return to the home square:
                     self.turn_180(); self.move_bot(exploring=True)
@@ -568,16 +584,19 @@ class RepairBot:
                     wall_count += 1
 
             # Traverse each path with a new robot:
-            for clone in paths:                
+            for clone in clones:                
                 clone.auto_map()                                
-                self.walls.update(clone.walls)
+                self.walls.update(clone.walls)      
+
                 self.prev.add_branch(clone.root)
+                clone.root.prev = self.prev        
 
                 if clone.found_oxygen:
-                    self.root = clone.oxygen_node
+                    self.oxygen_node = clone.oxygen_node
 
             # If we're at a dead end, return:
             if wall_count == 3 and not orig_path_clear: 
+                print_symbol(self.loc, 1, ' ')
                 return 
 
             # Continue forward in the orignal direction:
@@ -585,6 +604,8 @@ class RepairBot:
             self.move_bot()
 
             prev_direction = self.opposite(orig_direction)
+        
+        print_symbol(self.loc, 1, '@')
     
 #+----------------------------------------------------------------------------+
 #|                              Methods                                       |
@@ -611,29 +632,6 @@ def get_data(path):
     return [ int(n.rstrip('\n')) for n in open(path).readline().split(',')]
 
 #+----------------------------------------------------------------------------+
-#|                  Load Maze data for visualization:                         |
-#+----------------------------------------------------------------------------+
-# rows = dict()
-# with open('rows_data.json') as f:
-#     rows = json.load(f)
-
-# rows2 = dict()
-# with open('rows_data_inverted.json') as f:
-#     rows2 = json.load(f)
-
-int_rows = {}
-# for row, d in rows.items():
-#     row = int(row)
-#     int_rows[row] = {}
-#     for loc, sym in d.items():
-#         int_rows[row][eval(loc)] = sym
-
-# for row, d in rows2.items():
-#     row = int(row)    
-#     for loc, sym in d.items():
-#         int_rows[row][eval(loc)] = sym
-
-#+----------------------------------------------------------------------------+
 #|                      Maze Mapping used by both parts:                      |
 #+----------------------------------------------------------------------------+
 
@@ -642,69 +640,23 @@ os.system('cls'); os.system('cls')
 visualize = False
 visualize = True
 
-INTERVAL = 0.01
+INTERVAL = 0
 
 min_row, min_col, max_row, max_col = 0,0,0,0
 
-# Print Maze:
-if False and visualize:
-    print()
-    for y_val, row in sorted(int_rows.items()):
-        if y_val > max_row: max_row = y_val
-        for loc, symbol in sorted(row.items()):
-            print_symbol(loc, 1, symbol)
-        #time.sleep(0.1)
-        print()
-
 data = get_data("d15_input.txt")
-fred = RepairBot(data, interval=INTERVAL, visualize=visualize, wall_data=int_rows)
-#fred.auto_run()
-#fred.auto_map()
+fred = RepairBot(data, interval=INTERVAL, visualize=visualize)
+fred.auto_map()
 
 #+----------------------------------------------------------------------------+
-#|                  Generate Maze data for visualization:                     |
+#|                             Part 1:                                        |
 #+----------------------------------------------------------------------------+
 
-# every row coord gets it's own list, 
-# print each row as list, sort each row by x coord
-# find way to NOT use control codes to print
 if False:
-    rows = defaultdict(dict)
-    for loc in fred.walls:
-        rows[loc[1]][str(loc)] = fred.walls[loc] 
-
-    rows_json = json.dumps(rows, indent=2, sort_keys=True)
-    with open('rows_data_inverted.json',mode='w') as f:
-        f.writelines(rows_json)
-
-    print(f"Max Row: {max_row}, Max Col: {max_col}")
-    print(f"min Row: {min_row}, min Col: {min_col}")
-
-#+----------------------------------------------------------------------------+
-#|                             Part 1: Hardcoded                              |
-#+----------------------------------------------------------------------------+
-
-if True:
     data = get_data("d15_input.txt")
-    fred = RepairBot(data, interval=INTERVAL, visualize=visualize, wall_data=int_rows)
-
-    direction_commands = [1, 1, 3, 3, 2, 2, 2, 2, 4, 4, 
-    4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 1, 1, 3, 3, 2, 2, 2, 2, 
-    2, 2, 3, 3, 3, 3, 1, 1, 3, 3, 1, 1, 1, 1, 3, 3, 3, 3, 2, 2, 3, 3, 
-    1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 4, 4, 2, 2, 4, 4, 1, 1, 4, 4, 1, 1, 
-    1, 1, 3, 3, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 1, 1, 4, 4, 4, 4, 
-    1, 1, 3, 3, 1, 1, 4, 4, 4, 4, 2, 2, 4, 4, 4, 4, 2, 2, 3, 3, 2, 2, 
-    2, 2, 2, 2, 4, 4, 4, 4, 1, 1, 3, 3, 1, 1, 4, 4, 1, 1, 4, 4, 2, 2, 
-    4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 
-    3, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 2, 
-    2, 2, 2, 3, 3, 3, 3, 1, 1, 1, 1, 3, 3, 1, 1, 3, 3, 2, 2, 3, 3, 1, 
-    1, 1, 1, 3, 3, 3, 3, 3, 3, 2, 2, 4, 4, 4, 4, 2, 2, 3, 3, 2, 2, 2, 
-    2, 4, 4, 4, 4, 4, 4, 1, 1, 3, 3, 3, 3]
-
-    print("Move commands given:",fred.auto_run_inverted())
-    #print("Move commands given:",fred.semi_auto_run(direction_commands))
-    print(fred.oxygen_location)
-    print(f"Took {fred.steps_taken} steps")
+    fred = RepairBot(data, interval=0.1, visualize=visualize)
+    print("Move commands issued:",   fred.auto_run_inverted())
+    print("Oxygen system found at:", fred.oxygen_location)    
 
 #+----------------------------------------------------------------------------+
 #|                             Part 2:                                        |
@@ -717,7 +669,7 @@ def travel_path(node: Path, printed_locs, path_length, longest=None):
         printed_locs.add(l)
         if visualize:
             move_cursor(l[1]+1, l[0]+1)
-            print('░')
+            print('░')            
             time.sleep(0.01)
         move_cursor(45,0); print("Current path length:",path_length)
         path_length += 1
@@ -730,9 +682,9 @@ def travel_path(node: Path, printed_locs, path_length, longest=None):
 
     if path_length > longest[0]: longest[0] = path_length
 
-if False:
+if True:
     printed_locs = set()
     length = [0]
-    travel_path(fred.root, printed_locs, 0, length)
+    travel_path(fred.oxygen_node, printed_locs, 0, length)
     
     move_cursor(50,0); print("Longest path length is: ", length[0]-1)
