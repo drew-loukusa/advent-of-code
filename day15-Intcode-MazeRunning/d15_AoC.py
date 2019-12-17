@@ -612,13 +612,16 @@ class RepairBot:
 #+----------------------------------------------------------------------------+
 
 def move_cursor(row, col):        
-    print(f"\u001b[{row};{col}H", end='') 
+    print(f"\u001b[{row};{col*2}H", end='') 
 
 def print_symbol(loc, direction, symbol, pause=False):
     wall = loc
     move_cursor(wall[1] + G_OFFSET, wall[0] + G_OFFSET)
     if pause: time.sleep(0.1)
-    print(symbol)
+    if symbol not in {'▲','▼','◀','▶'}:
+        print(symbol+symbol)
+    else:
+        print(symbol)
 
 def print_bot(loc, old_loc, direction):
     # Remove old bot print:
@@ -640,7 +643,7 @@ os.system('cls'); os.system('cls')
 visualize = False
 visualize = True
 
-INTERVAL = 0
+INTERVAL = 0.01
 
 min_row, min_col, max_row, max_col = 0,0,0,0
 
@@ -669,7 +672,7 @@ def travel_path(node: Path, printed_locs, path_length, longest=None):
         printed_locs.add(l)
         if visualize:
             move_cursor(l[1]+1, l[0]+1)
-            print('░')            
+            print('░░')            
             time.sleep(0.01)
         move_cursor(45,0); print("Current path length:",path_length)
         path_length += 1
@@ -685,6 +688,7 @@ def travel_path(node: Path, printed_locs, path_length, longest=None):
 if True:
     printed_locs = set()
     length = [0]
+
     travel_path(fred.oxygen_node, printed_locs, 0, length)
     
     move_cursor(50,0); print("Longest path length is: ", length[0]-1)
