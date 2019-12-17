@@ -189,6 +189,8 @@ class Computer:
                         last_pad_row = self.pad_loc[1]
                         move_cursor(last_pad_row, last_pad_col); print(' ')
                         self.pad_loc = [col, row]
+
+                        # Show new cursor location:
                         move_cursor(row, col)
                         print("▬")  # Paddle 
 
@@ -204,18 +206,28 @@ class Computer:
                         move_cursor(row, col)                   
                         print("●")  # Ball
 
-                        # If ball "hits" a block, remove it:
+                        # If ball "hits" a block, remove block (Visually that is: 
+                        # Collision logic is handeled by the intcode program)
+                        
+                        # Hits Top:
                         if (row-1, col) in self.blocks:
                             move_cursor(row-1, col); print(' ')
                             del self.blocks[(row-1, col)]
                         
+                        # Hits left side
                         if (row, col+1) in self.blocks:
                             move_cursor(row, col+1); print(' ')
                             del self.blocks[(row, col+1)]
 
+                        # Hits right side 
                         if (row, col-1) in self.blocks:
                             move_cursor(row, col-1); print(' ')
                             del self.blocks[(row, col-1)]
+
+                        # Hits bottom:
+                        if (row+1, col) in self.blocks:
+                            move_cursor(row+1, col); print(' ')
+                            del self.blocks[(row+1, col)]
 
                     
                 #if self.output_mode=='return': return output
