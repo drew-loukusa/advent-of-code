@@ -25,7 +25,7 @@ example_input = [
     1456,
 ]
 
-day1_input = [ int(item) for item in open("day1-input.txt") ]
+day1_input = [ int(item) for item in open("day1in.txt") ]
 
 #m = example_input
 m = day1_input
