@@ -7,13 +7,13 @@ def save_input_to_file(puzzle, day):
         f.write(data)
 
 Year=2020
-Day=22
+Day={DAYREPLACE}
 
 puzzle = Puzzle(year=Year, day=Day)
 save_input_to_file(puzzle, day=Day)
 
-infile = "day22ex.txt"
-infile = "day22.txt"
+infile = "day{DAYREPLACE}ex.txt"
+infile = "day{DAYREPLACE}.txt"
 lines = [line.rstrip() for line in open(infile)]
 
 # Part 1
