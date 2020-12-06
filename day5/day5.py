@@ -39,10 +39,9 @@ def calc_seatID(boarding_pass):
         num_cols = num_cols//2
         if c == 'R': colmin += num_cols
         if c == 'L': colmax -= num_cols
-
     return rowmin*8+colmax
 
-assert calc_seatID(example1[0]) == example1[3] 
+assert calc_seatID(example1[0]) == example1[3]
 assert calc_seatID(example2[0]) == example2[3]
 assert calc_seatID(example3[0]) == example3[3]
 
@@ -56,22 +55,10 @@ if False:
 
 # Part 2
 if True:
-    SeatIDs = set()
-    for line in lines: 
-        SeatIDs.add(calc_seatID(line))
-    missingID = 0
-    left = None 
-    right = None 
-    for ID in SeatIDs:
-        if ID + 1 not in SeatIDs: 
-            if not left or ID > left: 
-                left = ID 
-        if ID - 1 not in SeatIDs:
-            if not right or ID > right: 
-                right = ID 
-        if right and left and (right - 1 == left + 1):
-            missingID = ID 
-            print(ID)
-            break 
-        
-    #puzzle.answer_b = missingID
+    m = list({ calc_seatID(line) for line in lines })
+    ID = 0
+    for i in range(len(m)-1):
+        if m[i] + 1 == m[i+1] - 1:
+            ID = m[i] + 1
+    print(ID)
+    #puzzle.answer_b = ID
