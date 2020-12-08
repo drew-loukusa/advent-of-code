@@ -1,4 +1,5 @@
 from aocd.models import Puzzle
+from collections import defaultdict as dd
 
 def save_input_to_file(puzzle, day):
     filename = "day" + str(day) + ".txt"
@@ -23,10 +24,10 @@ if False:
     processed_instrs = set()
     while i < len(lines):
         
-        if lines[i] + str(i) in processed_instrs:
+        if instr_id in processed_instrs:
             break 
         else:
-            processed_instrs.add(lines[i]+str(i))
+            processed_instrs.add(instr_id)
 
         tokens = lines[i].replace('+','').split(' ')
         instr, offset = tokens[0], int(tokens[1])
@@ -57,6 +58,47 @@ if False:
 # Part 2
 if True:
 
-    pass
+    def process_instructions(lines):
+        i = 0
+        accumulator = 0
+        processed_instrs = set()
+        while i < len(lines):
+            line = lines[i]
+            instr_id = line + str(i)
+            if instr_id in processed_instrs:
+                i = len(lines)
+                accumulator = None
+                continue
+            else:
+                processed_instrs.add(instr_id)
+
+            tokens = line.replace('+','').split(' ')
+            instr, offset = tokens[0], int(tokens[1])
+
+            if instr == 'acc': 
+                accumulator += offset
+                i += 1
+
+            elif instr == 'jmp': 
+                i += offset
+
+            elif instr == 'nop': 
+                i += 1
+                continue 
+
+        return accumulator
+    
+    for i in range(len(lines)):
+        line = lines[i]
+        tokens = line.replace('+','').split(' ')
+        instr, offset = tokens[0], int(tokens[1])
+
+        if instr in ['jmp', 'nop']: 
+            lines_cpy = lines[:]
+            a,b = ('jmp','nop') if instr == 'jmp' else ('nop', 'jmp')
+            lines_cpy[i] = lines_cpy[i].replace(a,b)
+            ans = process_instructions(lines_cpy)
+            if ans != None:
+                print(ans)
 
     #puzzle.answer_b = result
