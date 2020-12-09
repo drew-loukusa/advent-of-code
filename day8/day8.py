@@ -17,24 +17,26 @@ infile = "day8ex.txt"
 infile = "day8.txt"
 lines = [line.rstrip() for line in open(infile)]
 
+def parse_instr(line):
+    tokens = line.replace('+','').split(' ')
+    return tokens[0], int(tokens[1])
+
 # Part 1
 if False:
     i = 0
     accumulator = 0
     processed_instrs = set()
     while i < len(lines):
-        
+        line = lines[i]
+        instr_id = line + str(i)
         if instr_id in processed_instrs:
             break 
         else:
             processed_instrs.add(instr_id)
+        
+        instr, offset = parse_instr(line)
 
-        tokens = lines[i].replace('+','').split(' ')
-        instr, offset = tokens[0], int(tokens[1])
-
-        # print("cur intstr and offset:", instr, offset)
-        # print("accumulator", accumulator)
-
+        # Process Instruction
         if instr == 'acc': 
             accumulator += offset
             i += 1
@@ -45,11 +47,6 @@ if False:
         elif instr == 'nop': 
             i += 1
             continue 
-
-        # print("AFTER PROCESSING INSTR:")
-        # print("cur intstr and offset:", instr, offset)
-        # print("accumulator", accumulator)
-        # input(">>>")
 
     print(accumulator)
 
@@ -72,9 +69,9 @@ if True:
             else:
                 processed_instrs.add(instr_id)
 
-            tokens = line.replace('+','').split(' ')
-            instr, offset = tokens[0], int(tokens[1])
+            instr, offset = parse_instr(line)
 
+            # Process Instruction
             if instr == 'acc': 
                 accumulator += offset
                 i += 1
@@ -90,8 +87,7 @@ if True:
     
     for i in range(len(lines)):
         line = lines[i]
-        tokens = line.replace('+','').split(' ')
-        instr, offset = tokens[0], int(tokens[1])
+        instr, offset = parse_instr(line)
 
         if instr in ['jmp', 'nop']: 
             lines_cpy = lines[:]
