@@ -43,6 +43,7 @@ if False:
     print(sum(lines))
     #puzzle.answer_a = result
 
+# Part 2
 class Node:
     def __init__(self, value):
         self.value = value 
@@ -61,44 +62,53 @@ class Edge:
     def __str__(self):
         return str(self.source) + f" -{self.weight}-> " + str(self.dest)
 
-from collections import defaultdict as dd
-# Part 2
 if True:
     Nodes = {} # charger-value -> Node 
     bag = lines 
     bag.insert(0,0)
 
-    # For each charger in bag 
+    # Create initial node for outlet 
 
-    # If not in Nodes dict, create a new node for charger 
-    # give charger value as value
-    
+    # THIS ASSUMES A SORTED LIST
+    # For each charger in bag 
+    # Get Node for charger (first node will be the outlet)
     # 1. Calculate all possible dest nodes (chargers in range)
-    # 2. For each possible dest node
-        # a. If it does not exist, create it, add it to nodes dict 
+    # 2. For each possible dest node 
+        # a. If not in Nodes dict, create a new node for charger, give charger value as value
         # b. Create edge, give weight which is equal to sum of current nodes incoming edge weights 
         # C. Put edge in cur nodes outgoing list, and in dest nodes incoming list 
 
+    # Create a node for the "charging outlet" with an incoming edge with weight 1, (to signify starting with 1 unique path)
     node = Node(bag[0])
     edge = Edge(None, node, 1)
     node.inc.append(edge)
     Nodes[bag[0]] = node 
     print(node.inc[0])
+
     for charger, i in zip(bag, range(len(bag))):
         source = Nodes[charger]
 
+        # Find all chargers in range of the current charger 
+        # Only look at chargers that are past the current one 
         for dest_charger in bag[i+1:]:
             if dest_charger > charger + 3: break 
             if dest_charger <= charger + 3:
+                # Create node for charger if it does not have one yet 
                 if dest_charger not in Nodes:
                     node = Node(dest_charger)
                     Nodes[dest_charger] = node 
+                
+                # Get node for charger 
                 dest = Nodes[dest_charger]
 
+                # Calculate what weight to give outgoing nodes of source 
                 weight = 0 
                 for edge in source.inc:
                     weight += edge.weight
+
                 edge = Edge(source, dest, weight)
+
+                # Link the two nodes 
                 source.out.append(edge)
                 dest.inc.append(edge)
 
@@ -108,12 +118,6 @@ if True:
     weight = 0 
     for edge in node.inc:
         weight += edge.weight
-
-    # for k,node in Nodes.items():
-    #     print(node)
-    
-    for edge in node.inc:
-        print(edge)
 
     print(weight)
     
