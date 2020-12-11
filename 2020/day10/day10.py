@@ -1,4 +1,5 @@
 from aocd.models import Puzzle
+from collections import defaultdict
 
 def save_input_to_file(puzzle, day):
     filename = "day" + str(day) + ".txt"
@@ -58,17 +59,14 @@ class Edge:
         self.source = source
         self.dest = dest
         self.weight = weight
+    
+    def __radd__(self, other):
+        return other + self.weight
 
     def __str__(self):
         return str(self.source) + f" -{self.weight}-> " + str(self.dest)
 
 if True:
-    Nodes = {} # charger-value -> Node 
-    bag = lines 
-    bag.insert(0,0)
-
-    # Create initial node for outlet 
-
     # THIS ASSUMES A SORTED LIST
     # For each charger in bag 
     # Get Node for charger (first node will be the outlet)
@@ -78,12 +76,14 @@ if True:
         # b. Create edge, give weight which is equal to sum of current nodes incoming edge weights 
         # C. Put edge in cur nodes outgoing list, and in dest nodes incoming list 
 
+    Nodes = {} # charger-value -> Node 
+    bag = lines 
+    bag.insert(0,0)
+
     # Create a node for the "charging outlet" with an incoming edge with weight 1, (to signify starting with 1 unique path)
     node = Node(bag[0])
-    edge = Edge(None, node, 1)
-    node.inc.append(edge)
+    node.inc.append(Edge(None, node, 1))
     Nodes[bag[0]] = node 
-    print(node.inc[0])
 
     for charger, i in zip(bag, range(len(bag))):
         source = Nodes[charger]
@@ -93,19 +93,11 @@ if True:
         for dest_charger in bag[i+1:]:
             if dest_charger > charger + 3: break 
             if dest_charger <= charger + 3:
-                # Create node for charger if it does not have one yet 
-                if dest_charger not in Nodes:
-                    node = Node(dest_charger)
-                    Nodes[dest_charger] = node 
-                
-                # Get node for charger 
-                dest = Nodes[dest_charger]
+                # Get the node  node for charger, create it if it does not exist 
+                dest = Nodes.setdefault(dest_charger, Node(dest_charger))
 
                 # Calculate what weight to give outgoing nodes of source 
-                weight = 0 
-                for edge in source.inc:
-                    weight += edge.weight
-
+                weight = sum(source.inc)
                 edge = Edge(source, dest, weight)
 
                 # Link the two nodes 
@@ -115,11 +107,7 @@ if True:
     last_charger = bag[-1]
     node = Nodes[last_charger]
 
-    weight = 0 
-    for edge in node.inc:
-        weight += edge.weight
-
+    weight = sum(node.inc)
     print(weight)
-    
 
     
