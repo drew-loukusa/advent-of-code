@@ -5,8 +5,8 @@ from collections import defaultdict, Counter
 
 start_time = time.time()
 
-#get_data = lambda path: [ int(n.rstrip()) for n in open(path).readline().split(',') if len(n) > 0]
-get_data = lambda path: [ line.rstrip('\n') for line in open(path)]
+# get_data = lambda path: [ int(n.rstrip()) for n in open(path).readline().split(',') if len(n) > 0]
+get_data = lambda path: [line.rstrip("\n") for line in open(path)]
 
 data = get_data("d14_test_input.txt")
 data = get_data("d14_input.txt")
@@ -15,36 +15,41 @@ reactions = dict()
 
 # Parse the input data:
 for line in data:
-    l,r = line.split('=>')
-    #print(l, '=>',r)
+    l, r = line.split("=>")
+    # print(l, '=>',r)
 
-    l = l.split() 
+    l = l.split()
     r = r.split()
 
-    #print(l)
-    #print(r)
-    
+    # print(l)
+    # print(r)
+
     output_amount = int(r[0])
     output_name = r[1]
 
     recipe = {}
 
-    for i in range(0,len(l),2):
+    for i in range(0, len(l), 2):
         input_amount = int(l[i])
-        input_name = l[i+1].rstrip(',')
+        input_name = l[i + 1].rstrip(",")
         recipe[input_name] = input_amount
 
-    reactions[output_name] = { 'output_amount':output_amount, 'recipe': recipe }
-    
-class FuelError(Exception): pass
+    reactions[output_name] = {"output_amount": output_amount, "recipe": recipe}
+
+
+class FuelError(Exception):
+    pass
+
 
 def calc_needed_ore(mat_name, reactions, ore_count, matr_store):
 
-    output_amount   = reactions[mat_name]['output_amount'] # How much output this recipe makes
-    recipe          = reactions[mat_name]['recipe']        # Duh...
+    output_amount = reactions[mat_name][
+        "output_amount"
+    ]  # How much output this recipe makes
+    recipe = reactions[mat_name]["recipe"]  # Duh...
 
-    if len(recipe)== 1 and 'ORE' in recipe: 
-        ore_amount = recipe['ORE']
+    if len(recipe) == 1 and "ORE" in recipe:
+        ore_amount = recipe["ORE"]
         if ore_count[0] > ore_amount:
             ore_count[0] -= ore_amount
         else:
@@ -52,23 +57,26 @@ def calc_needed_ore(mat_name, reactions, ore_count, matr_store):
         return output_amount
 
     # Use recipe to create output:
-    for ingr_name, ingr_amount in recipe.items():        
-        
-        # Each ingredient has it's own recipe. You may need to use an ingredients recipie 
+    for ingr_name, ingr_amount in recipe.items():
+
+        # Each ingredient has it's own recipe. You may need to use an ingredients recipie
         # multiple times to get enough of said ingredient:
 
         # Store created materials in the material store until we have enough:
         while matr_store[ingr_name] < ingr_amount:
-            matr_store[ingr_name] += calc_needed_ore(ingr_name, reactions, ore_count, matr_store)            
-        
+            matr_store[ingr_name] += calc_needed_ore(
+                ingr_name, reactions, ore_count, matr_store
+            )
+
         # Use however much is needed:
         matr_store[ingr_name] -= ingr_amount
         matr_store
-        
+
     return output_amount
 
+
 # Part 2:
-if True:        
+if True:
     FUEL_produced = 0
     ore_required = 1582325
 
@@ -77,11 +85,11 @@ if True:
     loop = True
 
     # Run fuel calc once to put intitial excess materials produced into data structure
-    FUEL_produced += calc_needed_ore('FUEL', reactions, ore_hold, excess_store)      
+    FUEL_produced += calc_needed_ore("FUEL", reactions, ore_hold, excess_store)
 
     while ore_required < ore_hold[0]:
         if FUEL_produced % 10 == 0:
-            print(f"\u001b[{10};{0}H",end='')
+            print(f"\u001b[{10};{0}H", end="")
             print(ore_hold[0])
             print("FUEL:", FUEL_produced)
         FUEL_produced += 1
@@ -89,19 +97,19 @@ if True:
         excess_store = excess_store + cpy
         ore_hold[0] -= ore_required
 
-    while loop:        
+    while loop:
         if FUEL_produced % 10 == 0:
-            print(f"\u001b[{10};{0}H",end='')
+            print(f"\u001b[{10};{0}H", end="")
             print(ore_hold[0])
             print("FUEL:", FUEL_produced)
         try:
-            FUEL_produced += calc_needed_ore('FUEL', reactions, ore_hold, excess_store)         
+            FUEL_produced += calc_needed_ore("FUEL", reactions, ore_hold, excess_store)
         except FuelError as e:
-           print(e)
-           loop = False
-    
+            print(e)
+            loop = False
+
     print(FUEL_produced)
-    
+
     print("--- %s seconds ---" % (time.time() - start_time))
 
-    #Answer is 2267486 (2,267,486)
+    # Answer is 2267486 (2,267,486)

@@ -1,7 +1,9 @@
-data = [ n.rstrip('\n') for n in  open("d6_input.txt")] 
-data = [ n.rstrip('\n') for n in  open("d6_test_input_p2.txt")] 
+data = [n.rstrip("\n") for n in open("d6_input.txt")]
+data = [n.rstrip("\n") for n in open("d6_test_input_p2.txt")]
 from collections import defaultdict
+
 orbit_count = 0
+
 
 class Node:
     def __init__(self, name):
@@ -9,7 +11,7 @@ class Node:
         self.name = name
         self.children = []
 
-    def dump(self):        
+    def dump(self):
         if self.parent:
             print(self.name, end="->")
             self.parent.dump()
@@ -17,13 +19,14 @@ class Node:
             print(self.name)
 
     def count(self, i=0):
-        if self.parent:            
-            i = self.parent.count(i+1)
+        if self.parent:
+            i = self.parent.count(i + 1)
         return i
+
 
 def get_sat(name, sats):
     node = None
-    if name not in sats: 
+    if name not in sats:
         node = Node(name)
         sats[name] = node
     else:
@@ -33,30 +36,28 @@ def get_sat(name, sats):
 
 def recurse_down(node, transfers):
     for i, child in enumerate(node.children):
-        if child and child.name == 'SAN': 
+        if child and child.name == "SAN":
             print(transfers)
         elif child:
-            recurse_down(child, transfers+1)
+            recurse_down(child, transfers + 1)
             node.children[i] = None
 
 
-def you_to_santa(node, transfers):    
+def you_to_santa(node, transfers):
     recurse_down(node, transfers)
-    if node.parent and node.parent.name != 'SAN': 
-        you_to_santa(node.parent, transfers+1)
-    elif node.parent and node.parent.name == 'SAN':
+    if node.parent and node.parent.name != "SAN":
+        you_to_santa(node.parent, transfers + 1)
+    elif node.parent and node.parent.name == "SAN":
         print(transfers)
+
 
 sats = {}
 for line in data:
-    pname, cname = line.split(')')     
+    pname, cname = line.split(")")
 
     parent = get_sat(pname, sats)
-    child  = get_sat(cname, sats)
+    child = get_sat(cname, sats)
 
-    parent.children.append(child) 
-    child.parent = parent          
-you_to_santa(sats['YOU'].parent, transfers=0)
-
-
-
+    parent.children.append(child)
+    child.parent = parent
+you_to_santa(sats["YOU"].parent, transfers=0)

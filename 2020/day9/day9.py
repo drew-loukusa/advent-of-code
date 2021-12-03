@@ -1,13 +1,15 @@
 from aocd.models import Puzzle
 
+
 def save_input_to_file(puzzle, day):
     filename = "day" + str(day) + ".txt"
-    with open(filename, mode='w+') as f:
+    with open(filename, mode="w+") as f:
         data = puzzle.input_data
         f.write(data)
 
-Year=2020
-Day=9
+
+Year = 2020
+Day = 9
 
 # puzzle = Puzzle(year=Year, day=Day)
 # save_input_to_file(puzzle, day=Day)
@@ -20,41 +22,44 @@ nums = [int(line) for line in open(infile)]
 if False:
     cur_sum = 0
     for i in range(len(nums)):
-        if (i+window_len) >= len(nums): break 
-        window = nums[i:i+window_len]
-        #print("window", window)
-        # Get sum to check 
-        cur_sum = nums[i+window_len]
-        #print("cur_sum", cur_sum)
-        
-        # Find if cur_sum is a possible sum of a pair of nums the window 
+        if (i + window_len) >= len(nums):
+            break
+        window = nums[i : i + window_len]
+        # print("window", window)
+        # Get sum to check
+        cur_sum = nums[i + window_len]
+        # print("cur_sum", cur_sum)
+
+        # Find if cur_sum is a possible sum of a pair of nums the window
         invalid_sum = True
         for i in range(len(window)):
-            if not invalid_sum: break
-            # Get first number in pairing 
+            if not invalid_sum:
+                break
+            # Get first number in pairing
             num = window[i]
-            #print("num1", num)
-            if num > cur_sum: continue 
-            elif cur_sum == num: 
-                invalid_sum = False 
-                break 
+            # print("num1", num)
+            if num > cur_sum:
+                continue
+            elif cur_sum == num:
+                invalid_sum = False
+                break
             elif i == len(window):
-                break 
-            else: 
-                for rnum in window[i+1:]:
-                    #print(num ,"+", rnum)
+                break
+            else:
+                for rnum in window[i + 1 :]:
+                    # print(num ,"+", rnum)
                     if num + rnum == cur_sum:
-                        #print("Found valid sum", num, "+", rnum)
-                        invalid_sum = False 
-                        break 
-        #input(">>>")
-        
-        if invalid_sum: 
+                        # print("Found valid sum", num, "+", rnum)
+                        invalid_sum = False
+                        break
+        # input(">>>")
+
+        if invalid_sum:
             print("Found invalid sum", cur_sum)
             break
 
     print(cur_sum)
-    #puzzle.answer_a = result
+    # puzzle.answer_a = result
 
 # Part 2
 if True:
@@ -63,9 +68,10 @@ if True:
     nums = nums[::-1]
     win_len = 2
     while True:
-        if window_found: break
+        if window_found:
+            break
         for i in range(len(nums)):
-            window = nums[i:i+win_len]
+            window = nums[i : i + win_len]
             if sum(window) == target:
                 window_found = True
                 print("Window found!")
@@ -74,16 +80,16 @@ if True:
                 print(min(window) + max(window))
                 break
         win_len += 1
-      
-    #puzzle.answer_b = result
 
-    # Possible optimizations 
+    # puzzle.answer_b = result
+
+    # Possible optimizations
     # ==================================================================
-    # when we shift the window, we will be recalculating a lot of sums, 
+    # when we shift the window, we will be recalculating a lot of sums,
     # If we could find a way to save those calculations and re-use them...
 
-    # keep the window sorted, maintain dict of num->(index in sorted window), and a queue of 
-    # the indexes 
+    # keep the window sorted, maintain dict of num->(index in sorted window), and a queue of
+    # the indexes
 
-    # then you can use binary search on the sorted window to search for the second number in  
+    # then you can use binary search on the sorted window to search for the second number in
     # sum pairings
