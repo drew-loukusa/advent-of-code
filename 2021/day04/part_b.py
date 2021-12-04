@@ -3,15 +3,18 @@
 import sys
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
+from part_a import BingoBoard, make_boards, next_winning_board, sum_unmarked_values
 
 def process(infile):
     """Process the input file into a data structure for solve()"""
     return [line.rstrip() for line in open(infile)]
 
 def solve(data):
-    result = None 
-    # Problem soving go HERE
-    return result 
+    nums = [ int(n) for n in data[0].split(',')]
+    boards, vals_to_board = make_boards(data[2:])
+    _, _, nums = next_winning_board(nums, boards)
+
+        
 
 def main(infile):
     return solve(process(infile))
