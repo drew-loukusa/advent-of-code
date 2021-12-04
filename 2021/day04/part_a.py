@@ -1,18 +1,21 @@
 # https://adventofcode.com/2021/day/4
 
-from os import unlink
 import sys
 from collections import defaultdict as dd
-from typing import List
+from typing import Dict, List
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
 
 BINGO_SIZE = 5
 class BingoBoard:
-    def __init__(self, lines, val_to_board: dict = None):
+    def __init__(self, ID, lines, val_to_board: dict = None):
+        self.ID = ID
+        self.has_won = False
+        self.board = []
         self.vals = {}
         for y, row in enumerate(lines):
             row_vals = [int(n) for n in row.split(' ') if n != '']
+            self.board.append(row_vals)
             for x, n, in enumerate(row_vals):
                 self.vals[n] = (y,x)
 
@@ -36,11 +39,11 @@ def make_boards(data):
         for _ in range(5):
             rows.append(data[i])
             i += 1
-        boards.append(BingoBoard(rows, value_to_board))
+        boards.append(BingoBoard(i, rows, value_to_board))
         i += 1
     return boards, value_to_board
   
-def next_winning_board(nums, vals_to_board, boards: List[BingoBoard]):
+def next_winning_board(nums, vals_to_board: Dict[int, BingoBoard]):
     """
     Given a list of numbers and a list of boards, find the next winning board.
     This function returns the remaining nums that were left after locating the next winning board, 
@@ -56,7 +59,10 @@ def next_winning_board(nums, vals_to_board, boards: List[BingoBoard]):
         if last_num_drawn != 0 and winning_board is not None:
             break
 
-        for board in vals_to_board[num]:
+        boards_with_val = vals_to_board[num]
+        for board in boards_with_val:
+            if board.has_won: 
+                continue
             board: BingoBoard
             coords = board.vals.get(num)
 
@@ -66,14 +72,15 @@ def next_winning_board(nums, vals_to_board, boards: List[BingoBoard]):
 
             board.rows[y].add(num)
             board.cols[x].add(num)
+            #board.board[y][x] = '▮'
 
-            if len(board.rows[y]) == BINGO_SIZE or \
-                len(board.cols[x]) == BINGO_SIZE:
+            if (len(board.rows[y]) == BINGO_SIZE
+                or len(board.cols[x]) == BINGO_SIZE):
+                board.has_won = True
                 winning_board = board
                 last_num_drawn = num
                 if num_i + 1 < len(nums):
                     remaning_nums = nums[num_i+1:]
-                break
 
     return winning_board, last_num_drawn, remaning_nums
 
@@ -89,7 +96,7 @@ def sum_unmarked_values(board: BingoBoard):
 def solve(data):
     nums = [ int(n) for n in data[0].split(',')]
     boards, vals_to_board = make_boards(data[2:])
-    win_board, last_num_drawn, _ = next_winning_board(nums, vals_to_board, boards)
+    win_board, last_num_drawn, _ = next_winning_board(nums, vals_to_board)
     unmarked_sum = sum_unmarked_values(win_board)
     return last_num_drawn * unmarked_sum
 

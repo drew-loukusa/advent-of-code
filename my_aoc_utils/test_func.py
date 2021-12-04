@@ -34,5 +34,5 @@ class FunctionTester:
             filename = exception_traceback.tb_frame.f_code.co_filename
             line_number = exception_traceback.tb_lineno
 
-            print(f"Exception in test number: {self.test_num} on line {line_number}")
+            print(f"Exception in test number: {self.test_num} on line {line_number} in file {filename}")
             print(e)
