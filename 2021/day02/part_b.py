@@ -1,4 +1,4 @@
-# https://adventofcode.com/2021/day/2#part1
+# https://adventofcode.com/2021/day/2
 
 import sys
 from aocd.models import Puzzle
