@@ -1,21 +1,27 @@
-# https://adventofcode.com/2021/day/18#part1
+# https://adventofcode.com/2021/day/18
 
 import sys
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
 
-def main(infile):
-    lines = [line.rstrip() for line in open(infile)]
+def process(infile):
+    """Process the input file into a data structure for solve()"""
+    return [line.rstrip() for line in open(infile)]
+
+def solve(data):
     result = None 
     # Problem soving go HERE
     return result 
+
+def main(infile):
+    return solve(process(infile))
     
 if __name__ == "__main__":
     year, day = 2021, 18
     save_puzzle(year, day, __file__)
     aoc = AOC_Test(main, __file__)
 
-    # TESTS
+    # TESTS, test against example input, other test input here
     aoc.test("day18ex.txt", ans=None)
 
     # Run question 

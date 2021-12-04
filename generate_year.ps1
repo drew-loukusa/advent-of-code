@@ -1,9 +1,9 @@
-$YEAR=2022
+$YEAR=2021
 mkdir "$YEAR"
 Set-Location $YEAR
 
 # Create Folder and blank python script for day N
-for($DAY=1; $DAY -le 25; $DAY +=1 ){
+for($DAY=3; $DAY -le 25; $DAY +=1 ){
    $dirpath = "day$DAY"
    if ($DAY -lt 10){
       $dirpath = "day0$DAY"

@@ -26,8 +26,7 @@ class FunctionTester:
                 str_res = textwrap.shorten(str(res), width=500)
                 str_inputs = textwrap.shorten(str(inputs), width=500)
                 print(f"Got: \n{str_res}\nExpected:\n{ans}\nFor input:\n{str_inputs}")
-            else:
-                return res
+            return res
         except Exception as e:
             exception_type, exception_object, exception_traceback = sys.exc_info()
             while exception_traceback.tb_next != None:

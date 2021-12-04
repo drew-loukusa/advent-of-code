@@ -5,15 +5,15 @@ import sys
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
 
-def main(infile):
-    lines = [line.rstrip() for line in open(infile)]
+def process(infile):
+    return [int(line.rstrip()) for line in open(infile)]
 
+def solve(data):
     increases = 0
     last3sum = None
     cur_sum = 0
     window = []
-    for line in lines:
-        num = int(line)
+    for num in data:
         # Shrink window
         if len(window) >= 3:
             if last3sum is not None:
@@ -37,6 +37,8 @@ def main(infile):
     cur_sum -= window.pop(0)
     return increases
 
+def main(infile):
+    return solve(process(infile))
 
 if __name__ == "__main__":
     # Setup

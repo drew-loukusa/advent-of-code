@@ -2,21 +2,24 @@
 # https://adventofcode.com/2021/day/1#part1
 
 import sys
+from typing import List
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
 
-def main(infile):
-    lines = [line.rstrip() for line in open(infile)]
+def process(infile):
+    return [int(line.rstrip()) for line in open(infile)]
 
+def solve(data: List[int]):
     num_increases = 0
-    last = int(lines[0])
-    for line in lines[1:]:
-        cur = int(line)
+    last = data[0]
+    for cur in data[1:]:
         if cur > last:
             num_increases += 1
         last = cur
-
     return num_increases
+
+def main(infile):
+    return solve(process(infile))
 
 if __name__ == "__main__":
     # Setup

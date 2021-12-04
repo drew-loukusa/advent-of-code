@@ -4,11 +4,13 @@ import sys
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
 
-def main(infile):
-    lines = [line.rstrip() for line in open(infile)]
+def process(infile):
+    return [line.rstrip() for line in open(infile)]
+
+def solve(data):
     hpos, depth = 0,0 
     
-    for line in lines:
+    for line in data:
         cmd, amnt = line.split(' ')
         amnt = int(amnt)
         # TODO Upgrade Python version to 3.10 so you can use structural pattern matching here 
@@ -22,6 +24,9 @@ def main(infile):
             depth -= amnt
 
     return hpos * depth
+
+def main(infile):
+    return solve(process(infile))
     
 if __name__ == "__main__":
     year, day = 2021, 2
