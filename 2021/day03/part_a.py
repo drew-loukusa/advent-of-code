@@ -29,10 +29,13 @@ def solve(data):
             epsilon += "0"
     gamma, epsilon = int(gamma, base=2), int(epsilon, base=2)
 
-    return gamma * epsilon
+    #print(gamma, epsilon)
+
+    return gamma, epsilon
 
 def main(infile):
-    return solve(process(infile))
+    g,e = solve(process(infile))
+    return g * e
     
 if __name__ == "__main__":
     year, day = 2021, 3
