@@ -36,3 +36,4 @@ class FunctionTester:
 
             print(f"Exception in test number: {self.test_num} on line {line_number} in file {filename}")
             print(e)
+
