@@ -2,56 +2,66 @@
 
 import sys
 from collections import defaultdict as dd
+from typing import List
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
-from part_a import process, Point
+from part_a import Point
 
-def count_overlaps(data, OVERLAP_NUM=2):
+def generate_segments(infile) -> List[List[Point]]:
+    """
+    Generate a list of segments to be walked over later.
+    A segment is a list of Point objects.
+    """
+    segments = []
+    for line in open(infile):
+        line = line.rstrip()     
+        a, _, b = line.split()
+        a = Point(*a.split(','))
+        b = Point(*b.split(','))
+        segments.append(make_segment(a,b))
+    return segments 
+
+def make_segment(a: Point, b: Point):
+    segment = []
+    # Vertical line 
+    if a.x == b.x:
+        start = a if a.y < b.y else b
+        end = a if a.y > b.y else b
+        for y in range(start.y, end.y + 1):
+            segment.append(Point(start.x, y))
+        
+
+    # Horizontal line 
+    elif a.y == b.y:
+        start = a if a.x < b.x else b
+        end = a if a.x > b.x else b 
+        for x in range(start.x, end.x + 1):
+            segment.append(Point(x, start.y))
+        
+
+    # Diagonal line
+    else:
+        start = a if a.x < b.x else b 
+        end = a if a.x > b.x else b 
+        y = start.y 
+        for x in range(start.x, end.x + 1):
+            segment.append(Point(x, y))
+            if start.y > end.y:
+                y -= 1
+            else:
+                y += 1
+    return segment
+
+def count_overlaps(segments: List[List[Point]], overlap_minimum=2):
     overlaps = set()
     points = dd(int)
-    for a,b in data:
-        
-        # Generate points in between a and b 
-        line_points = []
-
-        # Vertical line 
-        if a.x == b.x:
-            start = a if a.y < b.y else b
-            end = a if a.y > b.y else b
-            line_points.append(start)
-            for y in range(start.y + 1, end.y):
-                line_points.append(Point(start.x, y))
-            line_points.append(end)
-
-        # Horizontal line 
-        elif a.y == b.y:
-            start = a if a.x < b.x else b
-            end = a if a.x > b.x else b 
-            line_points.append(start)
-            for x in range(start.x + 1, end.x):
-                line_points.append(Point(x, start.y))
-            line_points.append(end)
-
-        # Diagonal line
-        else:
-            start = a if a.x < b.x else b 
-            end = a if a.x > b.x else b 
-            line_points.append(start)
-            y = start.y 
-            for x in range(start.x + 1, end.x):
-                if start.y > end.y:
-                    y -= 1
-                else:
-                    y += 1
-                line_points.append(Point(x, y))
-            line_points.append(end)
-
-        for point in line_points:
+    for segment in segments:
+        for point in segment:
             points[(point.x, point.y)] += 1
 
             # Check after incrementing a point if you have walked
             # over it already. If yes, add it to the overlaps set
-            if points[(point.x, point.y)] >= OVERLAP_NUM:
+            if points[(point.x, point.y)] >= overlap_minimum:
                 overlaps.add((point.x, point.y))
 
         #dump_points(points)
@@ -59,7 +69,7 @@ def count_overlaps(data, OVERLAP_NUM=2):
     return len(overlaps)
 
 def main(infile):
-    return count_overlaps(process(infile))
+    return count_overlaps(generate_segments(infile))
     
 if __name__ == "__main__":
     year, day = 2021, 5
@@ -70,7 +80,7 @@ if __name__ == "__main__":
     aoc.test("day5ex.txt", ans=12)
 
     # Run question 
-    aoc.test("day5.txt", ans=-1, save_answer=True)
+    aoc.test("day5.txt", ans=20373, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
