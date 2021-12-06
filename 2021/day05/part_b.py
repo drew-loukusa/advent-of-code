@@ -89,21 +89,19 @@ def read_pairs(infile):
         b = Point(*b.split(','))
         yield (a,b)
 
-def walk_segment(a: Point, b: Point, points: dict, overlaps: set):
-    segment = []
+def walk_segment(a: Point, b: Point, points: dict, overlaps: set):   
     # Vertical line 
     if a.x == b.x:
         start = a if a.y < b.y else b
         end = a if a.y > b.y else b
         for y in range(start.y, end.y + 1):
-            point = Point(start.x, y)
-            segment.append(point)
-            points[(point.x, point.y)] += 1
+            p = Point(start.x, y)
+            points[(p.x, p.y)] += 1
 
             # Check after incrementing a point if you have walked
             # over it already. If yes, add it to the overlaps set
-            if points[(point.x, point.y)] >= 2:
-                overlaps.add((point.x, point.y))
+            if points[(p.x, p.y)] >= 2:
+                overlaps.add((p.x, p.y))
         
 
     # Horizontal line 
@@ -111,14 +109,13 @@ def walk_segment(a: Point, b: Point, points: dict, overlaps: set):
         start = a if a.x < b.x else b
         end = a if a.x > b.x else b 
         for x in range(start.x, end.x + 1):
-            point = Point(x, start.y)
-            segment.append(point)
-            points[(point.x, point.y)] += 1
+            p = Point(x, start.y)
+            points[(p.x, p.y)] += 1
 
             # Check after incrementing a point if you have walked
             # over it already. If yes, add it to the overlaps set
-            if points[(point.x, point.y)] >= 2:
-                overlaps.add((point.x, point.y))
+            if points[(p.x, p.y)] >= 2:
+                overlaps.add((p.x, p.y))
 
 
     # Diagonal line
@@ -127,21 +124,22 @@ def walk_segment(a: Point, b: Point, points: dict, overlaps: set):
         end = a if a.x > b.x else b 
         y = start.y 
         for x in range(start.x, end.x + 1):
-            point = Point(x, y)
-            segment.append(point)
+            p = Point(x, y)
             if start.y > end.y:
                 y -= 1
             else:
                 y += 1
-            points[(point.x, point.y)] += 1
+            points[(p.x, p.y)] += 1
 
             # Check after incrementing a point if you have walked
             # over it already. If yes, add it to the overlaps set
-            if points[(point.x, point.y)] >= 2:
-                overlaps.add((point.x, point.y))
+            if points[(p.x, p.y)] >= 2:
+                overlaps.add((p.x, p.y))
 
 def count_overlaps_while_generating_segments(infile):
+    # Dict of point, {(x,y) -> count} , for tracking how many times we "step" on each point
     points = dd(int)
+    # Set where points are placed once their count increases to 2 or above 
     overlap = set()
     for a,b in read_pairs(infile):
         walk_segment(a, b, points, overlap)
