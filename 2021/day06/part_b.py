@@ -4,14 +4,31 @@ import sys
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
 
+DAYS_TO_RUN = 256
+CYCLE_LENGTH = 6 # 0 is included as a valid value, so this wolud be 7 
+INITIAL_CYCLE_LENGTH = 8 # ditto, would be 9
+
 def process(infile):
     """Process the input file into a data structure for solve()"""
-    return [line.rstrip() for line in open(infile)]
+    return [int(n) for n in open(infile).readline().split(',')]
 
-def solve(data):
-    result = None 
-    # Problem soving go HERE
-    return result 
+def solve(school: list):
+    # Setup
+    days = {k:0 for k in range(9)}
+    for fish in school:
+        days[fish] += 1
+
+    for _ in range(DAYS_TO_RUN):
+        day_zero_fishes = days[0]
+        for state in range(9):
+            fishes_in_cur_state = days[state]
+            if state != 0:
+                days[state - 1] = fishes_in_cur_state
+        
+        days[6] += day_zero_fishes
+        days[8] = day_zero_fishes
+
+    return sum(days.values())
 
 def main(infile):
     return solve(process(infile))
@@ -22,7 +39,7 @@ if __name__ == "__main__":
     aoc = AOC_Test(main, __file__)
 
     # TESTS, test against example input, other test input here
-    aoc.test("day6ex.txt", ans=None)
+    aoc.test("day6ex.txt", ans=26984457539)
 
     # Run question 
     aoc.test("day6.txt", ans=None, save_answer=True)
