@@ -143,8 +143,7 @@ def walk_segment(a: Point, b: Point, points: dict, overlaps: set):
 def count_overlaps_while_generating_segments(infile):
     points = dd(int)
     overlap = set()
-    coord_pairs = read_pairs(infile)
-    for a,b in coord_pairs:
+    for a,b in read_pairs(infile):
         walk_segment(a, b, points, overlap)
     return len(overlap)
 
