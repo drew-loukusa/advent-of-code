@@ -41,8 +41,8 @@ if __name__ == "__main__":
     # TESTS, test against example input, other test input here
     aoc.test("day6ex.txt", ans=26984457539)
 
-    # Run question 
-    aoc.test("day6.txt", ans=None, save_answer=True)
+    # Run question
+    aoc.test("day6.txt", ans=1653559299811, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":

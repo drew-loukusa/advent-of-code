@@ -6,7 +6,7 @@ from my_aoc_utils.utils import save_puzzle, AOC_Test
 
 def process(infile):
     """Process the input file into a data structure for solve()"""
-    return [line.rstrip() for line in open(infile)]
+    return [int(n) for n in open(infile).readline()]
 
 def solve(data):
     result = None 
@@ -22,10 +22,10 @@ if __name__ == "__main__":
     aoc = AOC_Test(main, __file__)
 
     # TESTS, test against example input, other test input here
-    aoc.test("day7ex.txt", ans=None)
+    aoc.test("day7ex.txt", ans=37)
 
     # Run question 
-    aoc.test("day7.txt", ans=None, save_answer=True)
+    aoc.test("day7.txt", ans=-1, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
