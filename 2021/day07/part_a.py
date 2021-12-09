@@ -22,7 +22,9 @@ def solve(data):
     l_pos, r_pos = [], []
 
     # Sort by position, and walk through the positions
-    for cur_pos in sorted(position_counts.keys()):
+    spc = sorted(position_counts.keys())
+    all_pos = range(spc[0], spc[-1]+1)
+    for cur_pos in all_pos:
         count = position_counts[cur_pos]
         
         if cur_align_pos is None:
@@ -34,14 +36,15 @@ def solve(data):
         # new positions will always go on the right 
         if cur_pos > cur_align_pos:
             r_pos.append(cur_pos)
-            r_count += count 
+            r_count += count
 
             # Calculate what the fuel cost is for the crabs to the current alignment position
             cost = (cur_pos - cur_align_pos) * count
 
             # Add that cost to the right cost, and total cost
             r_cost += cost
-            total_fuel_cost += cost
+            if cost > 0:
+                total_fuel_cost += cost
 
         # Now check if we need to move the alignment right
         # Check if the cost increase from moving the alignment right
@@ -70,7 +73,7 @@ def solve(data):
             new_r_cost = r_cost - (align_diff * r_count)
             new_t_cost = new_l_cost + new_r_cost
 
-            if new_t_cost < total_fuel_cost:
+            if new_t_cost <= total_fuel_cost:
                 l_pos.append(cur_align_pos)
                 cur_align_pos = r_pos.pop(0)
                 l_cost = new_l_cost
@@ -95,7 +98,7 @@ if __name__ == "__main__":
     aoc.test("day7ex.txt", ans=37)
 
     # Run question 
-    aoc.test("day7.txt", ans=356958, save_answer=True)
+    # aoc.test("day7.txt", ans=356958, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
