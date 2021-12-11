@@ -21,6 +21,15 @@ def process(infile):
     return data
 
 def solve(data):
+    # The general idea of this algorithm is as follows:
+    # 1. Identify what number a pattern maps to
+    # 2. Use that number -> pattern mapping to deduce some of the wire -> segment mappings 
+    #       The wire -> segment mappings can be a COMPLETE mapping e.g. wire A -> segment B
+    #       or a partial mappping e.g. wire A -> seg C or seg F 
+    # 3. Use your inital mappings from being able to easily ident 1,4,7 and ad hoc rules
+    #    to further refine the mapping and ident new number -> pattern segment mappings
+    # 4. Keep id'ing numbers, keep refining map
+    # 5. Repeat until map is done (e.g. every wire maps to one and only one segment)
     segms = {
         0: set("abcefg"), 1: set("cf"), 2: set("acdeg"), 3: set("acdfg"), 4: set("bcdf"),
         5: set("abdfg"), 6: set("abdefg"), 7: set("acf"), 8: set("abcdefg"), 9: set("abcdfg")
@@ -29,7 +38,7 @@ def solve(data):
     for entry in data:
         seg_pool = set("abcdefg")
         wire_to_seg = {k:set() for k in "abcdefg"}
-        ntp = {} # num to pattern 
+        ntp = {} # num to wire pattern 
 
         def update_mapping(num, pattern, num_to_pattern, segm_pool: set, wire_to_segm):
             num_to_pattern[num] = pattern
@@ -39,9 +48,32 @@ def solve(data):
                 if len(wire_to_segm[wire]) == 0:
                     wire_to_segm[wire] = set(mapping)
 
+        def update_mapping_but_different(num: int, ntp: dict, segms: dict, wire_to_seg: dict):
+            # Gather the possible segments for number, according to our current, incomplete map
+            p_segms = set()
+            for wire in ntp[num]:
+                p_segms.update(wire_to_seg[wire])
+
+            # The segment 
+            seg_to_rem = p_segms.difference(segms[num]).pop()
+        
+            rem_other = None
+            for wire in ntp[num]:
+                mapping = wire_to_seg[wire]
+                if seg_to_rem in mapping:
+                    wire_to_seg[wire].remove(seg_to_rem)
+                    rem_other = set(wire_to_seg[wire])
+                    rem_other = rem_other.pop()
+
+            for wire in wire_to_seg:
+                mapping = wire_to_seg[wire]
+                if rem_other in mapping and len(mapping) > 1:
+                    wire_to_seg[wire].remove(rem_other)
+
         segm_patterns = entry[0]
         output_values = entry[1]
 
+        # Map (length of pattern) -> (list of patters with that length)
         patterns = dd(list)
         for pattern in segm_patterns:
             patterns[len(pattern)].append(pattern)
@@ -66,65 +98,34 @@ def solve(data):
             if len(mapping) == 0:
                 wire_to_seg[wire].add(last_segm)
 
-        # Now let's refine the mapping 
-        # Gather the segments that map to #3, according to the current map 
-        p_segms = set()
-        for wire in ntp[3]:
-            p_segms.update(wire_to_seg[wire])
-        
-        # Get the odd one out 
-        rem_seg = p_segms.difference(segms[3]).pop()
-        
-        rem_other = None 
-        for wire in ntp[3]:
-            mapping = wire_to_seg[wire]
-            if rem_seg in mapping:
-                wire_to_seg[wire].remove(rem_seg)
-                rem_other = set(wire_to_seg[wire])
-                rem_other = rem_other.pop()
+        # Now let's refine the mapping. As it stands we will have some 1 to 1 mappings
+        # between wires, but also some 1 -> 2 mappings. Let's get rid of those 1->2 mappings
+        update_mapping_but_different(3, ntp, segms, wire_to_seg)
 
-        for wire in wire_to_seg:
-            mapping = wire_to_seg[wire]
-            if rem_other in mapping and len(mapping) > 1:
-                wire_to_seg[wire].remove(rem_other)
-
-        e, ewire = None, None
+        # Now we can grab the wire that maps to the 'e' segment
+        # Of 2,5, and 3, The 'e' segment is only used by 2; so we can use it
+        # to identify the segment pattern that maps to the number 2
+        ewire = None 
         for k,v in wire_to_seg.items():
             if v == set('e'):
-                e, ewire = v, k
+                ewire = k 
 
-        # Now we can pick 2 from the remaning segment patterns 
+        # Now we can pick 2 from the remaning segment patterns
         for pattern in patterns[5]:
             if ewire in pattern:
                 ntp[2] = pattern 
-
-        p_segms = set()
-        for wire in ntp[2]:
-            p_segms.update(wire_to_seg[wire])
-        
-        # Get the odd one out 
-        rem_seg = p_segms.difference(segms[2]).pop()
-        
-        rem_other = None 
-        for wire in ntp[2]:
-            mapping = wire_to_seg[wire]
-            if rem_seg in mapping:
-                wire_to_seg[wire].remove(rem_seg)
-                rem_other = set(wire_to_seg[wire])
-                rem_other = rem_other.pop()
-
-        for wire in wire_to_seg:
-            mapping = wire_to_seg[wire]
-            if rem_other in mapping and len(mapping) > 1:
-                wire_to_seg[wire].remove(rem_other)
        
+        # Now we can finish refining our mapping
+        update_mapping_but_different(2, ntp, segms, wire_to_seg)
+
         # AND WE HAVE A MAPPING of WIRE -> SEGMENT
-        # It was messy, but it's done. Now we can decode the numbers. Yay.
-        print(end='')
+        # It was messy, but it's done. Now we can decode the numbers. Yay!
 
         for k,v in wire_to_seg.items():
             wire_to_seg[k] = v.pop()
         
+        # Decode the encoded output value strings from being wire descriptive, 
+        # to being segment descriptive 
         decoded_output_patterns = []
         for pattern in output_values:
             decoded_pattern = ""
@@ -132,6 +133,7 @@ def solve(data):
                 decoded_pattern += wire_to_seg[wire]
             decoded_output_patterns.append(decoded_pattern)
         
+        # Convert the now segment descriptive strings into a 4 digit number string
         num_str = ""
         for value_pattern in decoded_output_patterns:
             pset = set(value_pattern)
@@ -153,7 +155,7 @@ if __name__ == "__main__":
     aoc.test("day8ex.txt", ans=61229)
 
     # Run question 
-    aoc.test("day8.txt", ans=-1, save_answer=True)
+    aoc.test("day8.txt", ans=998900, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":

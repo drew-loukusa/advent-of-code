@@ -22,10 +22,10 @@ if __name__ == "__main__":
     aoc = AOC_Test(main, __file__)
 
     # TESTS, test against example input, other test input here
-    aoc.test("day9ex.txt", ans=None)
+    aoc.test("day9ex.txt", ans=15)
 
     # Run question 
-    aoc.test("day9.txt", ans=None, save_answer=True)
+    aoc.test("day9.txt", ans=-1, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
