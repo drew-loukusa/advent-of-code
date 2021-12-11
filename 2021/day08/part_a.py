@@ -13,7 +13,6 @@ def process(infile):
         while len(tokens) > 0:
             tk = tokens.pop(0)
             if tk == '|':
-                tokens.pop(0)
                 break 
             signal_patterns.append(tk)
         output_value = tokens 
@@ -21,30 +20,15 @@ def process(infile):
     return data 
 
 def solve(data):
-    segments = {
-        0: set("abcefg"), 1: set("cf"), 2: set("acdeg"), 3: set("acdfg"), 4: set("bcdf"),
-        5: set("abdfg"), 6: set("abdefg"), 7: set("acf"), 8: set("abcdefg"), 9: set("abcdfg")
-    }
-
-    segments_used = {2:(1), 3:(7), 4:(4), 5:(2,3,5), 6:(0, 6, 9), 7:(8) }
-    translation_table = {}
-
+    appearance_count = 0
     for entry in data:
-        segment_pool = "abcdefg"
-        segment_patterns = entry[0]
         output_values = entry[1]
-        sorted_patterns = sorted(segment_patterns, key=len)
-        for pattern in sorted_patterns:
-            if len(pattern) == 1:
-                pass 
-            if len(pattern) == 4:
-                pass
-            if len(pattern) == 7:
-                pass 
-            if len(pattern) == 8:
-                pass 
-
-    print(data)
+        for pattern in output_values:
+            plen = len(pattern)
+            # Segment count for 1, 4, 7, 8
+            if plen in {2,4,3,7}:
+                appearance_count += 1
+    return appearance_count
 
 
 def main(infile):
@@ -59,7 +43,7 @@ if __name__ == "__main__":
     aoc.test("day8ex.txt", ans=26)
 
     # Run question 
-    aoc.test("day8.txt", ans=-1, save_answer=True)
+    aoc.test("day8.txt", ans=383, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
