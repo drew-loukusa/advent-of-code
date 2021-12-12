@@ -7,6 +7,14 @@ from my_aoc_utils.utils import save_puzzle, AOC_Test
 from part_a import process, locate_low_points
 
 def calc_basin_size(starting_low_point, matrix) -> int:
+    """
+    CLASSIC.
+    Use BFS to walk all the points of a given basin. (dfs would also work)
+    Track what we have already walked with a visited set.
+    Increment the basin size for each point that we walk.
+
+    Return the basin size as an int.
+    """
     q = [starting_low_point]
     MAX_Y = len(matrix) - 1
     MAX_X = len(matrix[0]) - 1
@@ -38,6 +46,10 @@ def calc_basin_size(starting_low_point, matrix) -> int:
     return cur_basin_size
 
 def solve(matrix):
+    # It is totally workable to just run the BFS once you find a low point e.g.
+    # While walking the matirx check for low points, then trigger a bfs to fill in a basin
+
+    # BUT... I'm lazy and can re-use code from day 1
     low_points = locate_low_points(matrix)
 
     basin_sizes = []
