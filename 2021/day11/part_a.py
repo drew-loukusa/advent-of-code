@@ -47,61 +47,44 @@ def bfs_flash(point, M, flashed):
         # INCREMENT Neighbors
         # At the same time, check if "Flashing" caused any neighbors to be >= 9
 
+        def inc_and_queue(point):
+            y, x = point
+            if point not in flashed:
+                M[y][x] += 1
+            if M[y][x] > 9:
+                q.append(point)
+
         # Check up
-        if y > 0:
-            if (y - 1,x) not in flashed:
-                M[y - 1][x] += 1
-            if M[y - 1][x] > 9: 
-                q.append((y - 1, x))
+        if y > 0: 
+            inc_and_queue((y - 1,x))
 
         # Right and up
         if x < MAX_X and y > 0:
-            if (y - 1,x + 1) not in flashed:
-                M[y - 1][x + 1] += 1
-            if M[y - 1][x + 1] > 9:
-                q.append((y - 1, x + 1))
+            inc_and_queue((y - 1,x + 1))
 
         # Check right        
         if x < MAX_X:
-            if (y,x + 1) not in flashed:
-                row[x + 1] += 1
-            if row[x + 1] > 9: 
-                q.append((y, x + 1))
+            inc_and_queue((y,x + 1))
 
         # Right and down 
         if x < MAX_X and y < MAX_Y:
-            if (y + 1,x + 1) not in flashed:
-                M[y + 1][x + 1] += 1
-            if M[y + 1][x + 1] > 9:
-                q.append((y + 1, x + 1))
+            inc_and_queue((y + 1,x + 1))
 
         # Check down
         if y < MAX_Y:
-            if (y + 1,x) not in flashed:
-                M[y + 1][x] += 1
-            if M[y + 1][x] > 9: 
-                q.append((y + 1, x))
+            inc_and_queue((y + 1,x))
 
         # Left and down
         if x > 0 and y < MAX_Y: 
-            if (y + 1,x - 1) not in flashed:
-                M[y + 1][x - 1] += 1
-            if M[y + 1][x - 1] > 9: 
-                q.append((y + 1, x - 1))
+            inc_and_queue((y + 1,x - 1))
 
         # Check left
         if x > 0:
-            if (y,x - 1) not in flashed:
-                row[x - 1] += 1
-            if row[x - 1] > 9: 
-                q.append((y, x - 1))
+            inc_and_queue((y,x - 1))
 
         # Left and up 
         if x > 0 and y > 0:
-            if (y - 1,x - 1) not in flashed:
-                M[y - 1][x - 1] += 1
-            if M[y - 1][x - 1] > 9: 
-                q.append((y - 1, x - 1))
+            inc_and_queue((y - 1,x - 1))
     
     return flash_count
         
@@ -135,7 +118,7 @@ if __name__ == "__main__":
     aoc.test("day11ex.txt", ans=1656)
 
     # Run question 
-    aoc.test("day11.txt", ans=-1, save_answer=True)
+    aoc.test("day11.txt", ans=1665, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
