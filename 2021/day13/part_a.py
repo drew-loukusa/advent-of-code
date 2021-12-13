@@ -73,7 +73,7 @@ def dump_dots(dots, axis, fold_line, MAX_X, MAX_Y):
 
 def solve(dots, instructions, MAX_X, MAX_Y):   
     
-    for instr in instructions[0:1]:
+    for instr in instructions:
 
         axis,fold_line = instr.split('=')
         fold_line = int(fold_line)
@@ -128,7 +128,8 @@ def solve(dots, instructions, MAX_X, MAX_Y):
     return len(all_dots)
 
 def main(infile):
-    return solve(*process(infile))
+    dots, instructions, MAX_X, MAX_Y = process(infile)
+    return solve(dots, [instructions[0]], MAX_X, MAX_Y)
     
 if __name__ == "__main__":
     year, day = 2021, 13
@@ -141,7 +142,7 @@ if __name__ == "__main__":
     aoc.test("day13ex2.txt", ans=20)
 
     # Run question 
-    aoc.test("day13.txt", ans=-1, save_answer=True)
+    aoc.test("day13.txt", ans=610, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
