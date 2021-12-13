@@ -78,53 +78,54 @@ def solve(dots, instructions, MAX_X, MAX_Y):
         axis,fold_line = instr.split('=')
         fold_line = int(fold_line)
 
-        # Get the row or column indices of the rows or cols to be flipped
-        rows_or_cols = set([ n for n in dots[axis] if n > fold_line ])
-
-        # get indicies and rows or cols into lists
-        kstack = []
-        vstack = []
         end = MAX_X if axis == 'x' else MAX_Y
-        for i in range(fold_line, end + 1):
-            kstack.append(i)
-            if i in rows_or_cols:
-                vstack.append(dots[axis][i])
-            else:
-                vstack.append({})
 
-        # if MAX_X  < 80 and MAX_Y < 80: 
-        #     dump_dots(dots, axis, fold_line, MAX_X, MAX_Y)
-        # print(end='')
+        # Walk UP and DOWN from the fold line at the same time
+        # OR RIGHT and LEFT (depends on what the fold axis is)
 
-        mi, mj = fold_line, fold_line
-        while mj < end:
-            mj += 1
-            mi -= 1
-            for dot in dots[axis][mj]:
-                if axis == 'y': dot.y = mi
-                if axis == 'x': dot.x = mi
-                dots[axis][mi].add(dot)
+        # As we encounter dots below or to the right of the fold
+        # We push them into the corresponding mirrored row or col
 
+        k, f = fold_line, fold_line
+        while f < end:
+            f += 1 
+            k -= 1
+            # "Move" the dot and update the dot itself 
+            for dot in dots[axis][f]:
+                if axis == 'y': dot.y = k
+                if axis == 'x': dot.x = k
+                dots[axis][k].add(dot)
+
+        # Remove lines that have been "folded"
         for k in range(fold_line, end + 1):
             if k in dots[axis]:
                 del dots[axis][k]
         
+        # Update the bounds (used for dumping)
         if axis == 'y': MAX_Y = fold_line - 1
-        if axis == 'x': MAX_X = fold_line - 1
-
-        # if MAX_X  < 80 and MAX_Y < 80: 
-        #     dump_dots(dots, axis, fold_line, MAX_X, MAX_Y)
-        # print(end='')
-
-
+        if axis == 'x': MAX_X = fold_line - 1       
+    
+    # Put all the dots into a new set 
     all_dots = set()
-    dots_sum = 0
     for row in dots['y'].values():
         for dot in row:
             all_dots.add(dot)
-    if MAX_X  < 80 and MAX_Y < 80: 
-        dump_dots(dots, axis, fold_line, MAX_X, MAX_Y)
-        print(end='')
+
+    # Why put all dots into a new set?
+    # Because I was hashing 'dots' with values which I then changed later.
+    # This means the hash values don't match what the were originally
+    # SO, when you are adding points to a row or column, you might add a 
+    # duplicate value since set.add() won't detect dupes (dupes will have diff 
+    # hashes) 
+
+    # THIS IS BECAUSE I USED A HACK. I made a mutable type that I can hash. BAD!
+    # But, it does work in this case. You just have to make sure to get rid of
+    # dupes at the end before counting
+
+    # By trying to push all the dots that still "exist" into a new set, we force 
+    # python to re-evaluate the hash, and now dupes will be rejected. 
+    # This will give us the true count of how many dots are visible after folding
+  
     return len(all_dots)
 
 def main(infile):
@@ -147,4 +148,4 @@ if __name__ == "__main__":
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
         puzzle = Puzzle(year=year, day=day)
-        puzzle.answer_a = aoc.answer
+        puzzle.answer_a = aoc.answer 
