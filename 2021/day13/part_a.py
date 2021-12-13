@@ -2,32 +2,17 @@
 
 import sys
 from copy import deepcopy
-from collections import defaultdict as dd
+from collections import defaultdict as dd, namedtuple
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
 
-class Dot:
-    def __init__(self, x,y):
-        self.x = x 
-        self.y = y
-
-    def __hash__(self):
-        return hash((self.x, self.y))
-
-    def __repr__(self) -> str:
-        return f"d({self.x}, {self.y})"
-
-    def __eq__(self, __o: object) -> bool:
-        return (self.x == __o.x and self.y == __o.y)
-
-    def coords(self):
-        return self.x, self.y
-
+Dot = namedtuple('Dot', ['x', 'y'])
 def process(infile):
     """Process the input file into a data structure for solve()"""
     MAX_X, MAX_Y = 0,0
     dots = {'y':dd(set), 'x':dd(set)} 
     instructions = [] 
+    # Process dots
     for line in open(infile):
         line = line.rstrip()
         if len(line) == 0:
@@ -40,6 +25,7 @@ def process(infile):
         MAX_X = max(x, MAX_X)
         MAX_Y = max(y, MAX_Y)
 
+    # Process instructions
     for line in open(infile):
         line = line.rstrip()
         tokens = line.split(' ')
@@ -49,7 +35,6 @@ def process(infile):
     return dots, instructions, MAX_X, MAX_Y
 
 def dump_dots(dots, axis, fold_line, MAX_X, MAX_Y):
-    print("="*80)
     dots = deepcopy(dots)
     for y in range(MAX_Y + 1):
         if axis == 'y' and fold_line == y:
@@ -71,7 +56,7 @@ def dump_dots(dots, axis, fold_line, MAX_X, MAX_Y):
                 print('.', end='')
         print()
 
-def solve(dots, instructions, MAX_X, MAX_Y):   
+def solve(dots, instructions, MAX_X, MAX_Y, dump=False):   
     
     for instr in instructions:
 
@@ -92,9 +77,28 @@ def solve(dots, instructions, MAX_X, MAX_Y):
             k -= 1
             # "Move" the dot and update the dot itself 
             for dot in dots[axis][f]:
-                if axis == 'y': dot.y = k
-                if axis == 'x': dot.x = k
+                new_x, new_y = None,None 
+                if axis == 'y':
+                    # Remove the dot from current column before we modify it 
+                    dots['x'][dot.x].remove(dot)
+                    new_x = dot.x
+                    new_y = k
+                if axis == 'x': 
+                    # Remove dot from the current row before we modify it 
+                    dots['y'][dot.y].remove(dot)
+                    new_y = dot.y
+                    new_x = k
+                
+                # "Move" the dot along the current axis
+                dot = Dot(new_x, new_y)
                 dots[axis][k].add(dot)
+
+                if axis == 'y':
+                    # Add dot back into the current column
+                    dots['x'][dot.x].add(dot)
+                if axis == 'x':
+                    # Add dot back into the current row
+                    dots['y'][dot.y].add(dot)
 
         # Remove lines that have been "folded"
         for k in range(fold_line, end + 1):
@@ -105,28 +109,14 @@ def solve(dots, instructions, MAX_X, MAX_Y):
         if axis == 'y': MAX_Y = fold_line - 1
         if axis == 'x': MAX_X = fold_line - 1       
     
-    # Put all the dots into a new set 
-    all_dots = set()
-    for row in dots['y'].values():
-        for dot in row:
-            all_dots.add(dot)
+    dots_sum = 0
+    for row in dots['y']:
+        dots_sum += len(dots['y'][row])
 
-    # Why put all dots into a new set?
-    # Because I was hashing 'dots' with values which I then changed later.
-    # This means the hash values don't match what the were originally
-    # SO, when you are adding points to a row or column, you might add a 
-    # duplicate value since set.add() won't detect dupes (dupes will have diff 
-    # hashes) 
+    if dump:
+        dump_dots(dots, axis, fold_line, MAX_X, MAX_Y)
 
-    # THIS IS BECAUSE I USED A HACK. I made a mutable type that I can hash. BAD!
-    # But, it does work in this case. You just have to make sure to get rid of
-    # dupes at the end before counting
-
-    # By trying to push all the dots that still "exist" into a new set, we force 
-    # python to re-evaluate the hash, and now dupes will be rejected. 
-    # This will give us the true count of how many dots are visible after folding
-  
-    return len(all_dots)
+    return dots_sum
 
 def main(infile):
     dots, instructions, MAX_X, MAX_Y = process(infile)
