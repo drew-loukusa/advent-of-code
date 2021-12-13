@@ -1,6 +1,5 @@
 # https://adventofcode.com/2021/day/12
 
-from os import path
 import sys
 from collections import defaultdict as dd
 from aocd.models import Puzzle
@@ -38,9 +37,6 @@ class GraphWalker:
         self.paths = set()
     
     def dfs_with_restriction(self, node, small_nodes_visited, path_stack):
-        
-        
-
         if node == "end":
             path_to_str = ''.join(["start"] + path_stack)
             if path_to_str not in self.paths:
@@ -66,7 +62,7 @@ def solve(graph):
     smv = set()
     gw.dfs_with_restriction(node="start", small_nodes_visited=smv, path_stack=[])
     return len(gw.paths)
-    
+
 def main(infile):
     return solve(process(infile))
 
@@ -78,6 +74,7 @@ if __name__ == "__main__":
     # TESTS, test against example input, other test input here
     aoc.test("day12ex.txt", ans=10)
     aoc.test("day12ex1.txt", ans=19)
+    aoc.test("day12ex2.txt", ans=226)
 
     # Run question 
     aoc.test("day12.txt", ans=4707, save_answer=True)
