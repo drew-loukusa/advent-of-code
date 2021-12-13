@@ -33,7 +33,7 @@ def process(infile):
 
 class GraphWalker:
     # Use a class because updating a class attr is easier than managing returns 
-    # in a recursive function :D
+    # in a recursive function :D 
     def __init__(self, graph) -> None:
         self.graph = graph
         self.paths = 0
@@ -98,7 +98,6 @@ if __name__ == "__main__":
     aoc.test("day12ex.txt", ans=36)
     aoc.test("day12ex1.txt", ans=103)
     aoc.test("day12ex2.txt", ans=3509)
-    
 
     # # Run question 
     aoc.test("day12.txt", ans=130493, save_answer=True)
