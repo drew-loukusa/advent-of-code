@@ -38,14 +38,14 @@ class GraphWalker:
         self.graph = graph
         self.paths = 0
 
-    def dfs(self, node, graph, snc):      
+    def dfs(self, node, snc):      
 
         # Base case
         if node == "end":
             self.paths += 1
             return
 
-        neighbors = graph[node]
+        neighbors = self.graph[node]
         for neighbor in neighbors:
 
             # Go through neighbors and check which ones we are allowed to recurse to
@@ -68,7 +68,7 @@ class GraphWalker:
                     continue 
             
             # RECURSE 
-            self.dfs(neighbor, graph, snc)
+            self.dfs(neighbor, snc)
 
             if neighbor.islower() and neighbor != "end":
                 if neighbor in snc[1]:
@@ -83,7 +83,7 @@ def solve(graph):
     lower_case_nodes = [node for node in graph if (node.islower() and node != "start")]
     small_node_tracker = {0:set(lower_case_nodes), 1:set(), 2:set()}
     gw = GraphWalker(graph)
-    gw.dfs("start", graph, small_node_tracker)
+    gw.dfs(node="start", snc=small_node_tracker)
     return gw.paths
 
 def main(infile):
