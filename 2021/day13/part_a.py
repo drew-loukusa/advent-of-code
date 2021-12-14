@@ -72,10 +72,12 @@ def solve(dots, instructions, MAX_X, MAX_Y, dump=False):
         # We push them into the corresponding mirrored row or col
 
         k, f = fold_line, fold_line
+        # Walk from the fold line to the MAX for the selected axis
         while f < end:
             f += 1 
             k -= 1
             # "Move" the dot and update the dot itself 
+            # NOTE: If a line
             for dot in dots[axis][f]:
                 new_x, new_y = None,None 
                 if axis == 'y':
@@ -120,6 +122,7 @@ def solve(dots, instructions, MAX_X, MAX_Y, dump=False):
 
 def main(infile):
     dots, instructions, MAX_X, MAX_Y = process(infile)
+    # JUST pass in the first instruction, since that's what this part asks for
     return solve(dots, [instructions[0]], MAX_X, MAX_Y)
     
 if __name__ == "__main__":
