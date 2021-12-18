@@ -1,9 +1,12 @@
 # https://adventofcode.com/2021/day/14
 
 import sys
+import pprint
 from collections import defaultdict as dd
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
+
+from matplotlib import pyplot
 
 def process(infile):
     """Process the input file into a data structure for solve()"""
@@ -22,21 +25,20 @@ def process(infile):
     return template, insertion_rules
 
 def solve(template, insertion_rules, steps_to_run):
+    all_counts = []
     counts = None 
-    cur_step_str = list(template)
-    lce, mce = cur_step_str[0:2]
+    cur_str = list(template)
     # Problem soving go HERE
     for _ in range(steps_to_run):
         element_counts = dd(int)
-        a, b = None, cur_step_str[0]
+        a, b = None, cur_str[0]
         i = 1
-        tlen = len(cur_step_str)
-        next_step_str = b
+        next_str = b
         element_counts[b] += 1
-        while i < len(cur_step_str):
+        while i < len(cur_str):
             # Move window 
             a = b
-            b = cur_step_str[i]
+            b = cur_str[i]
 
             # Find which element should be inserted given current window
             rule_str = ''.join([a,b])
@@ -47,11 +49,18 @@ def solve(template, insertion_rules, steps_to_run):
             element_counts[b] += 1
             
             # Add window and new element to string for the next step 
-            next_step_str += (element_to_insert + b)
+            next_str += (element_to_insert + b)
             # increment i
             i += 1
-        cur_step_str = next_step_str
+        cur_str = next_str
         counts = element_counts
+        all_counts.append(element_counts)
+
+    return cur_str, counts
+
+def main(infile):
+
+    _, counts = solve(*process(infile), steps_to_run=10)
 
     mcc, lcc = None, None 
     for k,v in counts.items():
@@ -61,9 +70,6 @@ def solve(template, insertion_rules, steps_to_run):
         if v > mcc: mcc, mce, = v, k
             
     return counts[mce] - counts[lce]
-
-def main(infile):
-    return solve(*process(infile), steps_to_run=10)
     
 if __name__ == "__main__":
     year, day = 2021, 14

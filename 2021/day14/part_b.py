@@ -1,20 +1,32 @@
 # https://adventofcode.com/2021/day/14
 
 import sys
+from collections import defaultdict as dd, Counter
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
+import part_a
 
 def process(infile):
     """Process the input file into a data structure for solve()"""
-    return [line.rstrip() for line in open(infile)]
+    
+    template = None 
+    memo = dict()
+    for line in open(infile):
+        line = line.rstrip()
+        if len(line) <= 0: 
+            continue
+        if template is None:
+            template = line
+        else:
+            rule, _, element = line.split(' ')
+            memo[rule] = rule[0] + element + rule[1]
+    return template, memo
 
-def solve(data):
-    result = None 
-    # Problem soving go HERE
-    return result 
-
+def solve(template, insert_rules, steps_to_run):
+    pass
+    
 def main(infile):
-    return solve(process(infile))
+    return solve(*part_a.process(infile), steps_to_run=40)
     
 if __name__ == "__main__":
     year, day = 2021, 14
