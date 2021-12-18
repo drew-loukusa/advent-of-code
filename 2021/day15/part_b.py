@@ -52,10 +52,6 @@ def solve(matrix):
             tcost += 1
         cur_cost = tcost % 10
 
-        # Allowed range for cost values is 1 - 9, so increment it if it rolls over to 0
-        if cur_cost == 0:
-            cur_cost += 1    
-
         return cur_cost
 
     priority_q = []
