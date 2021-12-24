@@ -4,7 +4,7 @@ from my_aoc_utils.test_func import FunctionTester
 
 def save_puzzle(year, day, current_script_path):
     """Save puzzle to file, but only if it doesn't already exist"""
-    file_name = f"day{day}.txt"
+    file_name = f"puzzle_input.txt"
     abs_file_path = abs_path(current_script_path, file_name)
     if not os.path.exists(abs_file_path):
         puzzle = Puzzle(year=year, day=day)
