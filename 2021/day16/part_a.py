@@ -5,29 +5,30 @@ from typing import List
 from aocd.models import Puzzle
 from my_aoc_utils.utils import save_puzzle, AOC_Test
 
-def process(infile):
-    """Process the input file into a data structure for solve()"""
-    return open(infile).readline().rstrip()
-
-char_to_bits = {'0':'0000', '1':'0001', '2':'0010', '3':'0011', '4':'0100', '5':'0101', '6':'0110',
+CHAR_TO_BITS = {'0':'0000', '1':'0001', '2':'0010', '3':'0011', '4':'0100', '5':'0101', '6':'0110',
     '7':'0111', '8':'1000', '9':'1001', 'A':'1010', 'B': '1011', 'C': '1100', 'D':'1101', 
     'E':'1110', 'F':'1111'}
 
-bits_to_char = {v:k for k,v in char_to_bits.items()}
+def process(infile):
+    """Process the input file into a data structure for solve()"""
+    hex_str = open(infile).readline().rstrip()
 
-pad = lambda bits: ('0'*(4-len(bits))) + bits if len(bits) < 4 else bits
-to_char = lambda bits: bits_to_char[pad(bits)]
-to_bits = lambda char: char_to_bits[char]
+    bin_str = ""
+    # Convert string from hex to binary (as as string)
+    for char in hex_str:
+        bin_str += CHAR_TO_BITS[char]
+    
+    return bin_str
 
 class Packet:
-    def __init__(self, version, typeID, number=None) -> None:
+    def __init__(self, version, typeID, value=None) -> None:
         self.version: int = version
         self.typeID: int = typeID 
-        self.number: int = number 
+        self.value: int = value 
         self.packets: List[Packet] = []
     
     def __repr__(self) -> str:
-        return f"pkt< v:{self.version}, t:{self.typeID}, n:{self.number}, sub:{len(self.packets)} >"
+        return f"pkt< v:{self.version}, t:{self.typeID}, n:{self.value}, sub:{len(self.packets)} >"
 
 def process_packet(bin_str, i = 0):
     # i : start reading bits here
@@ -58,10 +59,10 @@ def process_packet(bin_str, i = 0):
             num_str += chunk[1:]
             i += 5
         #return i, int(num_str, base=2)
-        packet.number = int(num_str, base=2)
+        packet.value = int(num_str, base=2)
         return i, packet
     
-    # Packet is operator
+    # Packet is operation packet
     else:
         # Get the length type ID 
         length_typeID = int(bin_str[i])
@@ -75,6 +76,7 @@ def process_packet(bin_str, i = 0):
             i += 15
             max_i = i + length_in_bits
 
+            # Process the sub packets
             while i < max_i:
                 i,res = process_packet(bin_str, i = i) 
                 if res != None:
@@ -86,23 +88,63 @@ def process_packet(bin_str, i = 0):
         if length_typeID == 1:
             num_packets = int(bin_str[i:i + 11], base=2)
             i += 11
+
+            # Process the sub packets
             for _ in range(num_packets):
                 i,res = process_packet(bin_str, i = i)
                 if res != None:
                     packet.packets.append(res)
+
+        # Sub packets are processed, execute the operation
+
+        if packet.typeID == 0:
+            if packet.value is None:
+                packet.value = 0
+            for sub in packet.packets:
+                packet.value += sub.value 
+                
+        if packet.typeID == 1:
+            prod = 1
+            for sub in packet.packets:
+                prod *= sub.value
+            packet.value = prod
+
+        if packet.typeID == 2:
+            min_val = None
+            for sub in packet.packets:
+                if min_val is None:
+                    min_val = sub.value
+                else:
+                    min_val = min(min_val, sub.value)
+            packet.value = min_val
+
+        if packet.typeID == 3:
+            max_val = None
+            for sub in packet.packets:
+                if max_val is None:
+                    max_val = sub.value
+                else:
+                    max_val = max(max_val, sub.value)
+            packet.value = max_val
+
+        if packet.typeID == 5:
+            a,b = packet.packets
+            packet.value = 1 if a.value > b.value else 0
+
+        if packet.typeID == 6:
+            a,b = packet.packets
+            packet.value = 1 if a.value < b.value else 0
+
+        if packet.typeID == 7:
+            a,b = packet.packets
+            packet.value = 1 if a.value == b.value else 0
     
         return i, packet
 
-def solve(data):
-    result = None 
-    bin_str = ""
-
-    # Convert string from hex to binary (as as string)
-    for char in data:
-        bin_str += to_bits(char)
-
-    _, top_level_packet = process_packet(bin_str)
-
+def solve(bin_str):
+    # Process the 'packet' (and any sub packets)
+    top_level_packet: Packet = process_packet(bin_str)[1]
+    
     # Run a bfs on the recursive packet structure and count the version numbers 
     version_num_sum = 0
     q = [top_level_packet]
@@ -128,7 +170,7 @@ if __name__ == "__main__":
     aoc.test("ex3.txt", ans=31)
 
     # Run question 
-    aoc.test("puzzle_input.txt", ans=-1, save_answer=True)
+    aoc.test("puzzle_input.txt", ans=969, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
