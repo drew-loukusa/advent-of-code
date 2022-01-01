@@ -2,7 +2,6 @@
 
 import sys
 import math
-import heapq
 import functools
 from collections import namedtuple
 from aocd.models import Puzzle
@@ -19,14 +18,6 @@ def process(infile):
     x = AxisRange(int(xs), int(xe))
     y = AxisRange(int(ys), int(ye))
     return TargetRange(x,y)
-
-def visualize_state(target_range, points):
-    t_heap = [] 
-    for point in points:
-        heapq.heappush((point[1], point))
-    
-    # build rows 
-    rows = []
 
 @functools.cache
 def launch_probe(t: TargetRange , vx, vy):
@@ -45,7 +36,6 @@ def launch_probe(t: TargetRange , vx, vy):
         max_y = max(y, max_y)
 
         points.add((x,y))
-        #visualize_state(target_range=t, points=points)
 
         # Update velocities
         if vx > 0:
