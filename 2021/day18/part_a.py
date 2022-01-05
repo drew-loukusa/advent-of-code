@@ -12,6 +12,10 @@ class BTreeNode:
         self.value = value 
         self.left: BTreeNode = left
         self.right: BTreeNode = right 
+        if self.left is not None:
+            self.left.parent = self 
+        if self.right is not None:
+            self.right.parent = self
         self.parent = parent
         self.depth = 0
         self.id = globals()['NODE_ID']
@@ -62,12 +66,12 @@ class TreeParser:
             node.depth = depth 
             return node 
 
-def set_depth(root: BTreeNode, depth=1):
-    root.depth = depth
-    if root.left is not None:
-        set_depth(root.left, depth + 1)
-    if root.right is not None:
-        set_depth(root.right, depth + 1)
+def set_depth(node: BTreeNode, depth=1):
+    node.depth = depth
+    if node.left is not None:
+        set_depth(node.left, depth + 1)
+    if node.right is not None:
+        set_depth(node.right, depth + 1)
 
 def flatten_tree(node: BTreeNode):
     if node.value is not None:
@@ -199,6 +203,17 @@ def find_split_node(node: BTreeNode):
         return left 
     return right
 
+def reduce(node: BTreeNode):
+    exp_node, split_node = 1,1
+    while exp_node != None or split_node != None:
+        exp_node = find_explode_node(node)
+        if exp_node != None:
+            explode(exp_node)
+        split_node = find_split_node(node)
+        if split_node != None and exp_node is None:
+            split(split_node)
+    return
+
 def solve(trees: List[BTreeNode]):    
     root = trees[0]
     
@@ -212,17 +227,11 @@ def solve(trees: List[BTreeNode]):
         root.right = tree 
         root.right.parent = root
 
-        # After addition, explode and split as needed 
+        # After creating a new root, we have adjust the depth labels on each node
         set_depth(root)
-        exp_node, split_node = 1,1
-        while exp_node != None or split_node != None:
-            exp_node = find_explode_node(root)
-            if exp_node != None:
-                explode(exp_node)
-            split_node = find_split_node(root)
-            if split_node != None and exp_node is None:
-                split(split_node)
-        print(end='')
+        # After addition, explode and split as needed 
+        reduce(root)
+
     return calculate_magnitude(root)
 
 def main(infile):
@@ -242,7 +251,7 @@ if __name__ == "__main__":
     aoc.test("ex5.txt", ans=1137)
 
     # Run question 
-    aoc.test("puzzle_input.txt", ans=None, save_answer=True)
+    aoc.test("puzzle_input.txt", ans=4207, save_answer=True)
 
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
