@@ -22,11 +22,11 @@ if __name__ == "__main__":
     aoc = AOC_Test(main, __file__)
 
     # TESTS, test against example input, other test input here
-    aoc.test("day18ex.txt", ans=None)
+    aoc.test("ex0.txt", ans=None)
 
     # Run question 
-    aoc.test("day18.txt", ans=None, save_answer=True)
-
+    aoc.test("puzzle_input.txt", ans=None, save_answer=True)
+    
     # Submit if user passed in 'submit' on command line
     if len(sys.argv) > 1 and sys.argv[1] == "submit":
         puzzle = Puzzle(year=year, day=day)
