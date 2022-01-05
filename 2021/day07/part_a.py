@@ -47,19 +47,11 @@ def solve(data):
                 total_fuel_cost += cost
 
         # Now check if we need to move the alignment right
-        # Check if the cost increase from moving the alignment right
-        # is less then the cost decrese 
-
-        # Of course, if you move the alignment right, the old alignment
-        # becomes a cost of the left side. So, there has to be enough
-        # items on the right so that by moving the alignment right, 
-        # we save more than moving the alignment incurs in cost 
-
-        # and maybe we can move the alignment multiple times if needed?
-        # Maybe that part loops until condition fails
-
-        # The condition is: If the total cost DECREASES by moving the alignment right...
-
+        # How do we know if we need to move the alignment? 
+        # Check that the cost decrease from moving the alignment right 
+        # is smaller than the increase from moving the alignment right
+        # AND... We may need to do this multiple times, if the last position we added
+        # on the right had a big count. 
         move_alignment = True
         while move_alignment:
             if len(r_pos) == 0: 
@@ -69,7 +61,10 @@ def solve(data):
             new_align_count = position_counts[new_align_pos]
 
             align_diff = new_align_pos - cur_align_pos
-            new_l_cost = l_cost + ((align_diff * l_count) + (align_diff * old_align_count))
+            # We have to add the cost from the old alignment positon to the new position
+            # to the left cost AND update the cost from all of the existing elements 
+            # on the left
+            new_l_cost = l_cost + (align_diff * (l_count + old_align_count))
             new_r_cost = r_cost - (align_diff * r_count)
             new_t_cost = new_l_cost + new_r_cost
 
