@@ -10,7 +10,9 @@ def process(infile):
 
 def solve(data):
     result = None 
-    # Problem soving go HERE
+    
+    
+
     return result 
 
 def main(infile):

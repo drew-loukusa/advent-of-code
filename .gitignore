@@ -149,3 +149,15 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# =============================== Kotlin ======================================
+# Default ignored files
+/shelf/
+/workspace.xml
+
+*.txt
+
+.gradle
+.idea
+build
+src/**/*.txt
