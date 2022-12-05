@@ -8,11 +8,8 @@ import java.security.MessageDigest
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String): List<String> {
-    val dayPrefix = name.split('_')[0]
-    return File("src", "$dayPrefix/$name.txt")
-        .readLines() as List<String>
-}
+fun readInput(name: String): List<String> = File("src", "$name.txt")
+    .readLines() as List<String>
 
 /**
  * Converts string to md5 hash.
@@ -23,8 +20,9 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
 
 
 class AOC(
-    private var verbose: Boolean = false,
-    var inputFilePath: String = ""
+    var pathFromSrc: String,
+    var inputFilePath: String = "",
+    private var verbose: Boolean = false
 ) {
     private var testCounter = 0
     private var numFailedTests = 0
@@ -39,7 +37,7 @@ class AOC(
     ): Int {
         testCounter += 1
         try {
-            val result = part(readInput(newInputFilePath.ifBlank { inputFilePath }))
+            val result = part(readInput(pathFromSrc + '/' + newInputFilePath.ifBlank { inputFilePath }))
             val testPassed = (result == answer)
             if (!testPassed) {
                 if (verbose) {
@@ -78,10 +76,9 @@ class AOC(
         if (numFailedTests > 0) {
             println("Failed tests: $failedTests")
         }
-        if (numFailedTests > 0) {
+        if (numExceptionTests > 0) {
             println("Tests with exceptions: $exceptionTests")
         }
         println("************************************************")
-//        Runtime.getRuntime().exec("cls")
     }
 }

@@ -1,7 +1,6 @@
 package day01
 
 import AOC
-import readInput
 import java.util.*
 import kotlin.math.max
 
@@ -41,15 +40,15 @@ fun main() {
     }
 
     // Setup utility class
-    val aoc = AOC(verbose=true)
+    val aoc = AOC(pathFromSrc = "day01", verbose=true)
 
     // TESTS
-    aoc.inputFilePath = "day01_test"
+    aoc.inputFilePath = "input_test"
     aoc.test(::part1, 24000)
     aoc.test(::part2,  45000)
 
     // PARTS 1 & 2
-    aoc.inputFilePath = "day01"
+    aoc.inputFilePath = "input"
     aoc.test(::part1, 71924)
     aoc.test(::part2, 210406)
 
