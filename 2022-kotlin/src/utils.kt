@@ -33,6 +33,7 @@ class AOC(
     fun test(
         part: (input: List<String>) -> Int,
         answer: Int,
+        testName: String = "",
         newInputFilePath: String = ""
     ): Int {
         testCounter += 1
@@ -42,7 +43,7 @@ class AOC(
             if (!testPassed) {
                 if (verbose) {
                     println("================================================")
-                    println("Test #$testCounter failed!")
+                    println("Test #$testCounter failed! $testName ")
                     println("Expected:")
                     println(answer)
                     println("------------------------------------------------")
