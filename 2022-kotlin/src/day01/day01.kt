@@ -1,5 +1,6 @@
 package day01
 
+import AOC
 import readInput
 import java.util.*
 import kotlin.math.max
@@ -32,23 +33,26 @@ fun main() {
                 curElfCalories = 0
             }
         }
-        val top3 = MutableList(0) { it }
+        val top3 = mutableListOf<Int>()
         repeat(3) {
             top3.add(caloriesMaxHeap.poll())
         }
         return top3.sum()
     }
 
-    val testInput = readInput("day01_test")
-    val input = readInput("day01")
+    // Setup utility class
+    val aoc = AOC(verbose=true)
 
-    check(part1(testInput) == 24000)
-    val p1 = part1(input)
-    check(p1 == 71924)
-    println(p1)
+    // TESTS
+    aoc.inputFilePath = "day01_test"
+    aoc.test(::part1, 24000)
+    aoc.test(::part2,  45000)
 
-    check(part2(testInput) == 45000)
-    val p2 = part2(input);
-    check(p2 == 210406)
-    println(part2(input))
+    // PARTS 1 & 2
+    aoc.inputFilePath = "day01"
+    aoc.test(::part1, 71924)
+    aoc.test(::part2, 210406)
+
+    // Print out test summary (and failures if in verbose mode)
+    aoc.summary()
 }
