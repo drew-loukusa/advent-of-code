@@ -9,7 +9,7 @@ import java.security.MessageDigest
  * Reads lines from the given input txt file.
  */
 fun readInput(name: String): List<String> = File("src", "$name.txt")
-    .readLines() as List<String>
+    .readLines()
 
 /**
  * Converts string to md5 hash.
@@ -30,12 +30,12 @@ class AOC(
     private var failedTests = mutableListOf<Int>()
     private var exceptionTests = mutableListOf<Int>()
 
-    fun test(
-        part: (input: List<String>) -> Int,
-        answer: Int,
+    fun <T> test(
+        part: (input: List<String>) -> T,
+        answer: T,
         testName: String = "",
         newInputFilePath: String = ""
-    ): Int {
+    ) {
         testCounter += 1
         try {
             val result = part(readInput(pathFromSrc + '/' + newInputFilePath.ifBlank { inputFilePath }))
@@ -53,7 +53,6 @@ class AOC(
                 failedTests.add(testCounter)
                 numFailedTests += 1
             }
-            return result
         } catch (e: Exception) {
             exceptionTests.add(testCounter)
             numExceptionTests += 1
@@ -66,7 +65,6 @@ class AOC(
                 println(exceptionAsString)
             }
         }
-        return 0
     }
 
     fun summary() {
