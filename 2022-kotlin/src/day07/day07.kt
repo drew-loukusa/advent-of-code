@@ -83,12 +83,10 @@ fun main() {
 
     fun findDirsWithSizeAtMost(rootDir: Directory, maxSize: Int): Int {
         var dirSum = 0
-        val dirQueue = mutableListOf<Directory>(rootDir)
+        val dirQueue = mutableListOf(rootDir)
         while (dirQueue.isNotEmpty()){
             val curDir = dirQueue.removeAt(0)
             if (curDir.size <= maxSize){
-                val (name, size) = curDir
-                //println("$name $size")
                 dirSum += curDir.size
             }
             dirQueue.addAll(curDir.dirs.values)
@@ -108,7 +106,7 @@ fun main() {
         val amountToClear = updateSize - (totalDiskSpace - rootDir.size)
 
         var candidateDir = rootDir
-        val dirQueue = mutableListOf<Directory>(candidateDir)
+        val dirQueue = mutableListOf(candidateDir)
         while (dirQueue.isNotEmpty()){
             val curDir = dirQueue.removeAt(0)
 
