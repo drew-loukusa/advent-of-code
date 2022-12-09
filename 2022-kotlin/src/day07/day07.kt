@@ -7,7 +7,7 @@ fun main() {
     data class File(val name: String, val size: Int)
 
     data class Directory(
-        var name: String = "",
+        var name: String,
         var size: Int = 0,
         var files: MutableList<File> = mutableListOf(),
         var parent: Directory ?,
@@ -84,6 +84,7 @@ fun main() {
     fun findDirsWithSizeAtMost(rootDir: Directory, maxSize: Int): Int {
         var dirSum = 0
         val dirQueue = mutableListOf(rootDir)
+        // Use bfs to go through all the dirs and find the ones of at most maxSize
         while (dirQueue.isNotEmpty()){
             val curDir = dirQueue.removeAt(0)
             if (curDir.size <= maxSize){
@@ -106,6 +107,7 @@ fun main() {
         val amountToClear = updateSize - (totalDiskSpace - rootDir.size)
 
         var candidateDir = rootDir
+        // Use bfs to go through all the dirs
         val dirQueue = mutableListOf(candidateDir)
         while (dirQueue.isNotEmpty()){
             val curDir = dirQueue.removeAt(0)
