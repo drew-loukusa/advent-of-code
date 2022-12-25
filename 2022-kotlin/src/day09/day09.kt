@@ -67,22 +67,25 @@ fun main() {
                     "L" -> head.x -= 1
                 }
 
+                // For the rest of the knots in the rope...
                 for ((i, knot) in rope.withIndex()){
+                    // Skip the first knot (it's the head)
+                    // Including it in the rope makes things easier
                     if (i == 0) continue
                     val nextKnot = rope[i - 1]
+
                     // Distance formula
                     val dx = (nextKnot.x - knot.x).toDouble()
                     val dy = (nextKnot.y - knot.y).toDouble()
                     val distanceAway = sqrt(dx.pow(2) + dy.pow(2))
 
-                    // Check if we need to move tail, and move it if needed
+                    // Check if we need to move the current knot, and move it if needed
                     if (distanceAway >= 2) {
                         if (dx > 0) knot.x += 1
                         if (dx < 0) knot.x -= 1
                         if (dy > 0) knot.y += 1
                         if (dy < 0) knot.y -= 1
-                        //if (knot == tail){
-                        if (i == rope.size - 1){
+                        if (knot == tail){
                             positions.add(knot.x to knot.y)
                         }
                     }
