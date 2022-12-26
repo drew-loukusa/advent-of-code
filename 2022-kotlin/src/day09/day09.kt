@@ -72,6 +72,7 @@ fun main() {
                     // Skip the first knot (it's the head)
                     // Including it in the rope makes things easier
                     if (i == 0) continue
+
                     val nextKnot = rope[i - 1]
 
                     // Distance formula
