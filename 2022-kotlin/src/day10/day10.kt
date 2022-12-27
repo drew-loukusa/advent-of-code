@@ -87,7 +87,7 @@ fun main() {
             // DURING CYCLE
 
             // Check position of sprite
-            if (arrayOf(regX - 1, regX, regX + 1).contains(cursorPosition)){
+            if ((regX - 1..regX + 1).contains(cursorPosition)){
                 print(litPixel)
             }
             else print(darkPixel)
@@ -114,15 +114,15 @@ fun main() {
     // TESTS
     aoc.inputFilePath = "input_test"
     aoc.test(::part1, answer = 13140)
-    aoc.test(::part2, answer = -1)
+    //aoc.test(::part2, answer = -1)
 
     println("--------------------")
 
     // PARTS 1 & 2
     aoc.inputFilePath = "input"
-    //aoc.test(::part1, answer = 14060)
-    aoc.test(::part2, answer = -1)
+    aoc.test(::part1, answer = 14060)
+    aoc.summary()
 
-    // Print out test summary (and failures if in verbose mode)
-    //aoc.summary()
+    // See console for output, answer is PAPKFKEJ
+    aoc.test(::part2, answer = -1)
 }
