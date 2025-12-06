@@ -1,13 +1,14 @@
 package day11
 
 import AOC
+import java.math.BigInteger
 
 fun main() {
 
     class Expression(expressionStr: String) {
         val lhs: String
         val rhs: String
-        val op: (a: ULong, b: ULong) -> ULong
+        val op: (a: BigInteger, b: BigInteger) -> BigInteger
 
         init {
             val tokens = expressionStr.split(' ').filter { it.isNotEmpty() }
@@ -15,29 +16,29 @@ fun main() {
             val op = tokens[4]
             val rhs = tokens[5]
             this.op = if (op == "*") {
-                fun(a: ULong, b: ULong): ULong { return a * b }
-            } else fun(a: ULong, b: ULong): ULong { return a + b }
+                fun(a: BigInteger, b: BigInteger): BigInteger { return a * b }
+            } else fun(a: BigInteger, b: BigInteger): BigInteger { return a + b }
             this.rhs = rhs
             this.lhs = lhs
         }
 
-        fun run(old: ULong): ULong {
-            val a = if (lhs == "old") old else lhs.toULong()
-            val b = if (rhs == "old") old else rhs.toULong()
+        fun run(old: BigInteger): BigInteger {
+            val a = if (lhs == "old") old else lhs.toBigInteger()
+            val b = if (rhs == "old") old else rhs.toBigInteger()
             val res = op(a, b)
             return res
         }
     }
     class Test(testStr: String, trueStr: String, falseStr: String){
-        val divisor = testStr.split(' ').filter {it.isNotEmpty() }[3].toULong()
+        val divisor = testStr.split(' ').filter {it.isNotEmpty() }[3].toBigInteger()
         val throwToIfTrue = trueStr.split(' ').filter {it.isNotEmpty() }[5].toInt()
         val throwToIfFalse = falseStr.split(' ').filter {it.isNotEmpty() }[5].toInt()
-        fun run(worryValue: ULong): Int {
-            return if (worryValue % divisor == 0UL) throwToIfTrue else throwToIfFalse
+        fun run(worryValue: BigInteger): Int {
+            return if (worryValue % divisor == 0.toBigInteger()) throwToIfTrue else throwToIfFalse
         }
     }
     data class Monkey(
-        val items: MutableList<ULong>,
+        val items: MutableList<BigInteger>,
         val expression: Expression,
         val test: Test,
     )
@@ -51,7 +52,7 @@ fun main() {
             val itemsTokens = itr.next().split(' ').filter { it.isNotEmpty() }
             val items = itemsTokens
                 .slice(2 until itemsTokens.size)
-                .map { it.trim(',').toULong() }
+                .map { it.trim(',').toBigInteger() }
                 .toMutableList()
 
             val expStr = itr.next()
@@ -80,7 +81,7 @@ fun main() {
                 while (monkey.items.isNotEmpty()){
                     val worryValue = monkey.items.removeAt(0)
                     var newWorryValue = monkey.expression.run(worryValue)
-                    newWorryValue /= 3UL
+                    newWorryValue /= 3.toBigInteger()
                     val monkeyToThrowTo = monkey.test.run(newWorryValue)
                     monkeys[monkeyToThrowTo].items.add(newWorryValue)
                     if (!itemsCounted.containsKey(i)){
@@ -89,7 +90,6 @@ fun main() {
                     itemsCounted[i] = itemsCounted[i]!! + 1
                 }
             }
-            print('-')
             round += 1
         }
         val topCounts = itemsCounted.values
@@ -99,7 +99,7 @@ fun main() {
         return topCounts[0] * topCounts[1]
     }
 
-    fun part2(input: List<String>): ULong {
+    fun part2(input: List<String>): BigInteger {
         val roundsToRun = 10000
         val monkeys = parseInputToMonkeys(input)
         val itemsCounted = mutableMapOf<Int, Int>()
@@ -117,13 +117,14 @@ fun main() {
                     itemsCounted[i] = itemsCounted[i]!! + 1
                 }
             }
+            println("Round: $round")
             round += 1
         }
         val topCounts = itemsCounted.values
             .sorted()
             .reversed()
             //.slice(0..1)
-        return topCounts[0].toULong() * topCounts[1].toULong()
+        return topCounts[0].toBigInteger() * topCounts[1].toBigInteger()
     }
 
     // Setup utility class
@@ -137,6 +138,32 @@ fun main() {
     // PARTS 1 & 2
     aoc.inputFilePath = "input"
     aoc.test(::part1, answer = 64032)
+    // You're getting very large numbers, and they are overflowing standard data types (even longs)
+    // You tried using BigInteger, but it just slows to a crawl; Ya gotta get clever.
+    // Thoughts so far:
+    // * If there is a cycle, (what defines a cycle in this instance?)
+    //   then we could grab the value for the cycle and extrapolate the answer
+    //
+    //   The more I think about this the more I think we'll have to extrapolate the answer
+    //   I suspect the time it takes to do each N cycles will probably increase exponentially
+    //
+    // * We could store values as 2 parts, part a: VALUE % 1000, part b: N * 1000
+    //   Probably would need to make N very large, and
+    //   sort out how to do math on a composite number
+
+    // 125 / 10 = 12
+    // 125 % 10 = 5
+
+    // 125 * 277 = 34625
+    // 125 + 277 = 402
+
+    // (% 10, 277) -> (27, 7)
+    // (% 10, 125) -> (12, 5)
+
+    // (% 10, 402) -> (40, 2)
+    // (% 10, 34625) -> (3462, 5)
+
+
     aoc.test(::part2, answer = -1)
 
     aoc.summary()
